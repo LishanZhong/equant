@@ -5,7 +5,7 @@ import time
 
 
 def initialize(context):
-    pass
+    SetBenchmark(("ZCE|F|CF|905",))
     # self.AddAccount('Q1351868270')
     # SetBenchmarkContract('NYMEX|Z|CL|MAIN')
     # SetBenchmarkAccount('Q1351868270')
@@ -51,7 +51,7 @@ def handle_data(context):
     todaySellPosition = A_TodaySellPosition("ZCE|F|CF|905")
     print("当日卖持仓 : ", todaySellPosition)
     
-    sessionId = A_SendOrder("15838089576", "ZCE|F|SR|905", '2', '0', 'B', 'O', 'T', 5168, 1)
+    sessionId = A_SendOrder("15838089576", "ZCE|F|SR|905", '2', '0', 'B', 'O', 'T', 5167, 1)
     print("下单 : ", sessionId)
     
     time.sleep(10)
@@ -101,6 +101,11 @@ def handle_data(context):
     context.i = context.i + 1
     print("handle_data: ", context.i)
     '''
+
+
+
+
+
 
 
 

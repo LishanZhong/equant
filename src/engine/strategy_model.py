@@ -1600,6 +1600,8 @@ class StrategyHisQuote(object):
     def runReportRealTime(self, context, handle_data, event):
         '''发送回测阶段来的数据'''
         # 更新当前bar数据
+        contNo = event.getContractNo()
+        data = event.getData()
         self._updateCurBar(contNo, data)
         self._updateOtherBar(contNo, data)
         # 推送K线

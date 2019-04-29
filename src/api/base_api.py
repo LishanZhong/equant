@@ -259,7 +259,7 @@ class BaseApi(object):
         【实例】
               无
         '''
-        return self._dataModel.BarStatus()
+        return self._dataModel.getBarStatus()
 
     def HistoryDataExist(self):
         '''
@@ -278,7 +278,7 @@ class BaseApi(object):
         【实例】
               无
         '''
-        return self._dataModel.HistoryDataExist()
+        return self._dataModel.isHistoryDataExist()
 
     #/////////////////////////即时行情/////////////////////////////
     def Q_AskPrice(self, symbol='', level=1):
@@ -2392,25 +2392,25 @@ class BaseApi(object):
     def GetConfig(self):
         return self._dataModel.getConfig()
 
-    def SetBenchmark(self,symbolTuple):
+    def SetBenchmark(self, contractNo):
         '''
         【说明】
               设置基准合约及相关联的合约列表
 
         【语法】
-              int SetBenchmark(tuple symbolTuple)
+              int SetBenchmark(contractNo1, contractNo2, contractNo3, ...)
 
         【参数】
-              symbolTuple 元组，第一个元素为基准合约
+              contractNo 合约编号，第一个元素为基准合约
 
         【备注】
               返回整型, 0成功，-1失败
 
         【示例】
-              SetBenchmark(('ZCE|F|SR|905',))
-              SetBenchmark(('ZCE|F|SR|905', 'ZCE|F|SR|912', 'ZCE|F|SR|001'))
+              SetBenchmark('ZCE|F|SR|905')
+              SetBenchmark('ZCE|F|SR|905', 'ZCE|F|SR|912', 'ZCE|F|SR|001')
         '''
-        return self._dataModel.setSetBenchmark(symbolTuple)
+        return self._dataModel.setSetBenchmark(contractNo)
 
     def SetUserNo(self, userNo):
         '''
@@ -2894,8 +2894,8 @@ def Enum_Period_DayX():
 def GetConfig():
     return baseApi.GetConfig()
 
-def SetBenchmark(symbolTuple):
-    return baseApi.SetBenchmark(symbolTuple)
+def SetBenchmark(*contractNo):
+    return baseApi.SetBenchmark(contractNo)
 
 def SetUserNo(userNo=''):
     return baseApi.SetUserNo(userNo)

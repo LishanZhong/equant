@@ -57,7 +57,7 @@ def handle_data(context):
     print("config : ", GetConfig())
     SetTradeFee('C', 0.1, 2000000)
     print("config : ", GetConfig())
-    '''
+    
     print("config : ", GetConfig())
     SetTradeMode(False, 0, True, True)
     print("config : ", GetConfig())
@@ -65,13 +65,19 @@ def handle_data(context):
     print("config : ", GetConfig())
     SetTradeMode(False, 0, False, True)
     print("config : ", GetConfig())
-
-
+    '''
+    SetBenchmark("ZCE|F|SR|905", "ZCE|F|AP|907", "ZCE|F|AP|910")
+    print("config : ", GetConfig())
 
     '''
     context.i = context.i + 1
     print("handle_data: ", context.i)
     '''
+
+
+
+
+
 
 
 
