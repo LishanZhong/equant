@@ -24,7 +24,7 @@
     b. 将极星量化安装包移动到任意目录，例如：D:\equant，并解压
     
 4. 极星9.5客户端安装
-    a. 浏览器打开https://epolestar95-1255628687.cos.ap-beijing.myqcloud.com/epolestar9.5_0426.zip，下载极星9.5客户端
+    a. 浏览器打开https://epolestar95-1255628687.cos.ap-beijing.myqcloud.com/epolestar_0429.zip，下载极星9.5客户端
     b. 极星9.5客户端安装包移动到任意目录，例如:D\equant，并解压
     b. 打开9.5客户端主目录，找到equant.bat，右键编辑，修改equant-script.py所在的路径为极星量化的路径，例如D:\equant\equantV1.0
 
