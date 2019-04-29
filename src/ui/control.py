@@ -85,13 +85,14 @@ class TkinterController(object):
 
         return
 
-    def generateReportReq(self):
+    def generateReportReq(self, strategyId):
         """发送生成报告请求"""
         # TODO：生成报告，如果RepData为空，则显示最新日期的历史报告，
         # TODO：不为空，代表获取到的数据为传过来的数据
-        strategyId = self.model.getCurStId()
-        if strategyId:
-            self._request.reportRequest(strategyId)
+        # strategyId = self.model.getCurStId()
+        # if strategyId:
+        #     self._request.reportRequest(strategyId)
+        self._request.reportRequest(strategyId)
 
     def newStrategy(self, path):
         """右键新建策略"""

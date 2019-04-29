@@ -12,7 +12,6 @@ import tkinter.ttk as ttk
 from dateutil.parser import parse
 from datetime import datetime
 from tkinter import messagebox
-from tkcalendar import Calendar, DateEntry
 from utils.utils import *
 from utils.language import Language
 from .language import Language
@@ -155,7 +154,6 @@ class RenameToplevel(QuantToplevel):
         super().__init__(master)
         self.path = path
         self.attributes("-toolwindow", 1)
-        # self.wm_attributes("-topmost", 1)
         self.title("重命名")
         self.createWidget()
 
@@ -167,40 +165,42 @@ class RenameToplevel(QuantToplevel):
         f4.pack(side=tk.BOTTOM, fill=tk.X)
 
         if os.path.isfile(self.path):
-            oldLabel = tk.Label(f1, text=self.language.get_text(2))
-            oldEntry = tk.Label(f1, width=15)
-            oldEntry["text"] = os.path.basename(self.path)
+            # oldLabel = tk.Label(f1, text=self.language.get_text(2))
+            # oldEntry = tk.Label(f1, width=15)
+            # oldEntry["text"] = os.path.basename(self.path)
             newLabel = tk.Label(f2, text=self.language.get_text(28))
             self.newEntry = tk.Entry(f2, width=15)
-            typeLabel = tk.Label(f3, text=self.language.get_text(29))
-            self.typeChosen = ttk.Combobox(f3, state="readonly", width=10)
-            self.typeChosen["values"] = [".py"]
-            self.typeChosen.current(0)
+            self.newEntry.insert(tk.END, os.path.basename(self.path))
+            # typeLabel = tk.Label(f3, text=self.language.get_text(29))
+            # self.typeChosen = ttk.Combobox(f3, state="readonly", width=10)
+            # self.typeChosen["values"] = [".py"]
+            # self.typeChosen.current(0)
             self.saveBtn = tk.Button(f4, text="重命名", bd=0)
             self.cancelBtn = tk.Button(f4, text="取消", bd=0)
 
-            oldLabel.pack(side=tk.LEFT, fill=tk.X, expand=tk.NO, padx=15)
-            oldEntry.pack(side=tk.LEFT, fill=tk.X, expand=tk.YES, padx=15)
+            # oldLabel.pack(side=tk.LEFT, fill=tk.X, expand=tk.NO, padx=15)
+            # oldEntry.pack(side=tk.LEFT, fill=tk.X, expand=tk.YES, padx=15)
             newLabel.pack(side=tk.LEFT, fill=tk.X, expand=tk.NO, padx=15)
             self.newEntry.pack(side=tk.LEFT, fill=tk.X, expand=tk.YES, padx=15)
-            typeLabel.pack(side=tk.LEFT, fill=tk.X, expand=tk.NO, padx=15)
-            self.typeChosen.pack(side=tk.LEFT, fill=tk.X, expand=tk.YES, padx=15)
+            # typeLabel.pack(side=tk.LEFT, fill=tk.X, expand=tk.NO, padx=15)
+            # self.typeChosen.pack(side=tk.LEFT, fill=tk.X, expand=tk.YES, padx=15)
 
             self.cancelBtn.pack(side=tk.RIGHT, expand=tk.NO, ipadx=5, padx=15, pady=10)
             self.saveBtn.pack(side=tk.RIGHT, expand=tk.NO, ipadx=5, padx=15, pady=10)
 
         if os.path.isdir(self.path):
-            oldLabel = tk.Label(f1, text=self.language.get_text(30))
-            oldEntry = tk.Label(f1, width=15)
-            oldEntry["text"] = os.path.basename(self.path)
+            # oldLabel = tk.Label(f1, text=self.language.get_text(30))
+            # oldEntry = tk.Label(f1, width=15)
+            # oldEntry["text"] = os.path.basename(self.path)
             newLabel = tk.Label(f2, text=self.language.get_text(30))
             self.newEntry = tk.Entry(f2, width=15)
+            self.newEntry.insert(tk.END, os.path.basename(self.path))
 
-            self.saveBtn = tk.Button(f3, text="重命名", bd=0)
-            self.cancelBtn = tk.Button(f3, text="取消", bd=0)
+            self.saveBtn = tk.Button(f4, text="重命名", bd=0)
+            self.cancelBtn = tk.Button(f4, text="取消", bd=0)
 
-            oldLabel.pack(side=tk.LEFT, fill=tk.X, expand=tk.NO, padx=15)
-            oldEntry.pack(side=tk.LEFT, fill=tk.X, expand=tk.YES, padx=15)
+            # oldLabel.pack(side=tk.LEFT, fill=tk.X, expand=tk.NO, padx=15)
+            # oldEntry.pack(side=tk.LEFT, fill=tk.X, expand=tk.YES, padx=15)
             newLabel.pack(side=tk.LEFT, fill=tk.X, expand=tk.NO, padx=15)
             self.newEntry.pack(side=tk.LEFT, fill=tk.X, expand=tk.YES, padx=15)
 
@@ -936,6 +936,10 @@ class LoadWin(QuantToplevel, QuantFrame):
         contractLabel = tk.Label(labelFrame, text="数据合约:", bg=rgb_to_hex(255, 255, 255),
                                  justify=tk.LEFT, anchor=tk.NW, width=10)
         contractLabel.pack(side=tk.LEFT, padx=5)
+
+        # 设置选择按钮的初始状态
+        # state = self.master.editor
+
         contractButton = tk.Button(labelFrame, text="选择", relief=tk.FLAT,
                                    activebackground="lightblue",
                                    overrelief="groove",
@@ -996,8 +1000,8 @@ class LoadWin(QuantToplevel, QuantFrame):
         tFrame.pack(fill=tk.X, pady=2)
         #TODO: DateEntry 控件创建很耗时
         # timer = DateEntry(tFrame, width=15, anchor=tk.W, background='darkblue', foreground="white", borderwidth=2,
-        #                   year=2019)
-        # timer.pack(side=tk.LEFT, pady=5)
+        #         #                   year=2019)
+        #         # timer.pack(side=tk.LEFT, pady=5)
         self.t = tk.StringVar()
         timer = tk.Entry(tFrame, relief=tk.RIDGE, width=12, bg=rgb_to_hex(245, 245, 245), textvariable=self.t)
         timer.pack(side=tk.LEFT, fill=tk.X, padx=1)
@@ -1089,14 +1093,21 @@ class LoadWin(QuantToplevel, QuantFrame):
 
         # 起始日期
         self.dateRatio = tk.Radiobutton(beginFrame, text="起始日期", bg=rgb_to_hex(255, 255, 255),
-                                   value=1, anchor=tk.W, variable=self.sampleVar)  # self.isBeginDate
+                                        value=1, anchor=tk.W, variable=self.sampleVar)  # self.isBeginDate
         self.dateRatio.pack(side=tk.LEFT, padx=5)
 
-        year = time.localtime().tm_year  # 当前年份
-        date_ = DateEntry(beginFrame, width=15, anchor=tk.W, background='darkblue', foreground="white", borderwidth=2,
-                          year=year, textvariable=self.beginDate)
-        date_.pack(side=tk.LEFT, pady=5)
+        # year = time.localtime().tm_year  # 当前年份
+        # date_ = DateEntry(beginFrame, width=15, anchor=tk.W, background='darkblue', foreground="white", borderwidth=2,
+        #                   year=year, textvariable=self.beginDate)
+        # date_.pack(side=tk.LEFT, pady=5)
+        # date_.bind("<ButtonRelease-1>", self.dateSelectEvent)
+        date_ = tk.Entry(beginFrame, relief=tk.RIDGE, width=10, bg=rgb_to_hex(255, 255, 255),
+                         textvariable=self.beginDate, validate="key", validatecommand=(self.testContent, "%P"))
+        date_.pack(side=tk.LEFT, fill=tk.X, padx=1)
         date_.bind("<ButtonRelease-1>", self.dateSelectEvent)
+        tk.Label(beginFrame, text="(格式: YYYYMMDD)", bg=rgb_to_hex(255, 255, 255),
+                 anchor=tk.W, width=18).pack(side=tk.LEFT, expand=tk.NO, padx=1)
+
 
         # 固定根数
         self.qtyRadio = tk.Radiobutton(fixFrame, text="固定根数", bg=rgb_to_hex(255, 255, 255),
@@ -1328,6 +1339,29 @@ class LoadWin(QuantToplevel, QuantFrame):
                                 command=self.enter, bg=rgb_to_hex(230, 230, 230))
         enterButton.pack(side=tk.RIGHT, ipadx=20, padx=5, pady=5)
 
+    def _isDateFormat(self, date):
+        """
+        判断用户输入的日期格式是否正确，正确则将该日期返回，错误则给出提示信息
+        :param date: 标准格式：'YYYYMMDD'
+        :return:
+        """
+        if len(date) > 8 or len(date) < 8:
+            messagebox.showinfo("极星量化", "日期应为8位长度")
+            return
+        else:
+            # TODO: 还需要判断日期是否是合法日期
+            try:
+                time = parse(date)
+            except ValueError:
+                messagebox.showinfo("极星量化", "日期为非法日期")
+                return
+            else:
+                if time > datetime.now():
+                    messagebox.showinfo("极星量化", "日期不能大于今天")
+                    return
+                else:
+                    return  date
+
     def enter(self):
         # TODO: IntVar()显示时会补充一个0？？？
         user = self.user.get()
@@ -1365,7 +1399,7 @@ class LoadWin(QuantToplevel, QuantFrame):
         isTrade = self.isTrade.get()
 
         beginDate = self.beginDate.get()
-        beginDateFormatter = parseYMD(beginDate)
+        # beginDateFormatter = parseYMD(beginDate)
         fixQty = self.fixQty.get()
         sampleVar = self.sampleVar.get()
 
@@ -1441,18 +1475,12 @@ class LoadWin(QuantToplevel, QuantFrame):
             messagebox.showinfo("极星量化", "最小下单量不能大于1000")
             return
 
-        if beginDate:
-            date = parse(beginDate)
-            if date > datetime.now():
-                messagebox.showinfo("极星量化", "日期不能大于今天")
-
         if isOpenTimes and (int(openTimes) < 1 or int(openTimes) > 100):
             messagebox.showinfo("极星量化", "每根K线同向开仓次数必须介于1-100之间")
             return
         if isConOpenTimes and (int(conOpenTimes) < 1 or int(conOpenTimes) > 100):
             messagebox.showinfo("极星量化", "最大连续同向开仓次数必须介于1-100之间")
             return
-
 
         # self.config["Contract"] = (contract,)
         self.config["Contract"] = tuple(contract)
@@ -1478,7 +1506,12 @@ class LoadWin(QuantToplevel, QuantFrame):
             self.config["Sample"]["AllK"] = True
             self.config["RunMode"]["Simulate"]["UseSample"] = True
         elif sampleVar == 1:
-            self.config["Sample"]["BeginTime"] = beginDateFormatter
+            # 对用户输入的日期进行判断
+            dateFormat = self._isDateFormat(beginDate)
+            if not dateFormat:  # 没有正确返回日期就推出
+                return
+
+            self.config["Sample"]["BeginTime"] = beginDate
             self.config["RunMode"]["Simulate"]["UseSample"] = True
         elif sampleVar == 2:
             if not fixQty:

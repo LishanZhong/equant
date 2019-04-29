@@ -91,7 +91,7 @@ class QuantMonitor(object):
         # headList = ["编号", "策略名称", "策略状态", "频率","保证金比例", "手续费",
         #             "初始资金", "总盈利", "总亏损", "可用资金"]
         # headList = ["编号", "策略名称", "策略状态", "运行类型", "初始资金", "合约", "开始时间", "结束时间", "权益"]
-        headList = ["编号", "策略名称", "合约", "策略状态", "运行类型"]
+        headList = ["编号", "策略名称", "合约", "运行状态", "实盘运行"]
 
         self.executeBar = ttk.Scrollbar(self.executeList, orient="vertical")
         self.executeBar.pack(side=RIGHT, fill=Y)
@@ -111,25 +111,6 @@ class QuantMonitor(object):
         """创建运行策略右键菜单"""
         RunMenu(self._controller, self.executeListTree).popupmenu(event)
 
-    # ----------------弃用--------------------
-    def updateExecuteList(self, executeList):
-        for child in self.executeListTree.get_children():
-            self.executeListTree.delete(child)
-
-        number = 0
-        for stId, execute in executeList.items():
-
-            #TODO:先不放executeList的"data"
-            values = [
-                number,
-                execute["StrategyName"],
-                execute["Status"],
-                execute["RunType"]
-            ]
-            # TODO：应该把策略id信息放到values中，方便后续处理
-            self.executeListTree.insert("", END, iid=stId, values=tuple(values), tag=0)
-            number += 1
-
     def _initStrategyStatus(self):
         self.statusDict = {
             ST_STATUS_NONE:         "初始状态",
@@ -143,10 +124,10 @@ class QuantMonitor(object):
         return self.statusDict[key]
 
     def updateSingleExecute(self, dataDict):
+        #print("dataDict: ", dataDict)
         status = self._getStrategyStatus(dataDict["StrategyState"])
-        runType = '历史回测' if dataDict['Config']['RunMode']['Actual']['SendOrder2Actual'] else "实盘运行"
+        runType = '是' if dataDict['Config']['RunMode']['Actual']['SendOrder2Actual'] else "否"
 
-        print("dataDict: ", dataDict)
 
         values = [
             dataDict['StrategyId'],

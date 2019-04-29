@@ -64,15 +64,15 @@ def get_execute_type(strategy):
     if strategy.config.execute_type == EEQU_TRADE_TYPE_A:
         return "实盘"
 
-def parseYMD(date):
-    """
-    将日期（2011/11/11）转换为指定格式
-    :param date: 日期
-    :return: 时间组成的字符串：'20110203'
-    """
-    year_, mon_, day_ = date.split("/")
-    tempDate = datetime(int(year_), int(mon_), int(day_))
-    return datetime.strftime(tempDate, '%Y%m%d')
+# def parseYMD(date):
+#     """
+#     将日期（20111111）转换为指定格式
+#     :param date: 日期
+#     :return: 时间组成的字符串：'20110203'
+#     """
+#     year_, mon_, day_ = date.split("/")
+#     tempDate = datetime(int(year_), int(mon_), int(day_))
+#     return datetime.strftime(tempDate, '%Y%m%d')
 
 def parseTime(time):
     """

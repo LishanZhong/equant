@@ -8,16 +8,16 @@
 
 #### 安装教程
 1. 安装极星9.5客户端  
-    a. 浏览器打开[极星9.5客户端](https://epolestar95-1255628687.cos.ap-beijing.myqcloud.com/epolestar_0429.zip)，下载极星9.5客户端
+    a. 单击[极星9.5客户端](https://epolestar95-1255628687.cos.ap-beijing.myqcloud.com/epolestar_0429.zip)，下载极星9.5客户端
     b. 极星9.5客户端安装包移动到任意目录，例如:D\equant，并解压
 
 2. 安装Anaconda3  
-    a. 打开[Anacondag官网](https://www.anaconda.com)下载最新python3.7 Anaconda3版本  
+    a. 打开[Anaconda官网](https://www.anaconda.com)下载最新python3.7 Anaconda3版本  
     b. 双击安装文件，点击"Next",出现"Add Anaconda3 to the system PATH environment variable"时勾选,其他点击"Next"安装
     
 3. 安装python依赖包 
-    a. 安装ta-lib库
-        a1. 浏览器打开[ta-lib下载地址](https://www.lfd.uci.edu/~gohlke/pythonlibs/)，搜索TA-LIB，下载TA_Lib-0.4.17-cp36-cp36m-win_amd64.whl 
+    a. 安装talib库
+        a1. 打开[talib下载地址](https://www.lfd.uci.edu/~gohlke/pythonlibs/)，搜索TA-LIB，下载TA_Lib-0.4.17-cp36-cp36m-win_amd64.whl 
         a2. Win+R运行cmd，进入TA_Lib的下载目录，执行pip install TA_Lib-0.4.17-cp36-cp36m-win_amd64.whl  
     
 4. 安装极星量化    

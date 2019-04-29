@@ -82,9 +82,11 @@ class StrategyModel(object):
             self._hisModel.runRealTime(context, handle_data, event)
         elif code == ST_TRIGGER_FILL_DATA:
             self._hisModel.runReportRealTime(context, handle_data, event)
-                
+        else:
+            pass
+
     def reqHisQuote(self):
-        self._hisModel.reqHisQuote()
+        self._hisModel.reqAndSubQuote()
 
     def onHisQuoteRsp(self, event):
         self._hisModel.onHisQuoteRsp(event)
@@ -1130,9 +1132,12 @@ class StrategyHisQuote(object):
         # K线数据定义
         # response data
         self._metaData = {}
-        self._earliestKLineDateTimeStamp = -1
+        self._curEarliestKLineDateTimeStamp = -1
+        self._lastEarliestKLineDateTimeStamp = -1
+        self._pkgEarliestKLineDateTimeStamp = -1
         self._hisLength = 0
-        #
+        # 请求的 k线数量够了，
+        self._borderIndex = 0
         self._kLineNoticeData = {}
 
         self._strategy = strategy
@@ -1264,7 +1269,9 @@ class StrategyHisQuote(object):
             
         self._strategy.sendEvent2Engine(event)
 
-    def reqHisQuote(self):
+        # 请求历史k线，
+        # 可能同时请求即时k线
+    def reqAndSubQuote(self):
         '''向9.5请求所有合约历史数据'''
         count, countOrDate = 0, self._getKLineCount()
 
@@ -1274,20 +1281,64 @@ class StrategyHisQuote(object):
             self._reqByDate = False
         else:
             self._reqByDate = True
-            #
-            self._reaByDateEnd = False
+            self._reqByDateEnd = False
+
             dateTimeStampLength = len("20190326143100000")
-            self._reqBeginDate = int(countOrDate + (dateTimeStampLength-len(countOrDate))*'0')
-            count = self._reqKLineTimes*4000
+            self._reqBeginDate = int(countOrDate + (dateTimeStampLength - len(countOrDate)) * '0')
+            count = self._reqKLineTimes * 4000
 
-        self.reqKLinesByCount(self._contractNo, count, EEQU_NOTICE_NOTNEED)
+        # req by count
+        if not self._reqByDate:
+            self.reqKLinesByCount(self._contractNo, count, EEQU_NOTICE_NEED)
+        # req by date
+        else:
+            self.reqKLinesByCount(self._contractNo, count, EEQU_NOTICE_NOTNEED)
 
+    # response 数据
     def onHisQuoteRsp(self, event):
-        self._updateHisRspData(event)
-        if self.isHisQuoteRspEnd(event):
-            self._reIndexHisRspData()
-            self._borderIndex = len(self._metaData[self._contractNo]["KLineData"])
-            self._hisLength = len(self._metaData[self._contractNo]["KLineData"])
+        # req by count
+        if not self._reqByDate:
+            self._updateHisRspData(event)
+            return
+
+        # req by date
+        if not self._reqByDateEnd:
+            dataList = event.getData()
+            # update current package earliest KLine DateTimeStamp
+            if len(dataList) == 0:
+                pass
+            else:
+                self._pkgEarliestKLineDateTimeStamp = dataList[-1]["DateTimeStamp"]
+
+            # update current req earliest KLine DateTimeStamp
+            if event.isChainEnd() and self._curEarliestKLineDateTimeStamp < self._pkgEarliestKLineDateTimeStamp:
+                self._curEarliestKLineDateTimeStamp = self._pkgEarliestKLineDateTimeStamp
+
+            # req by date end or continue
+            # enough data
+            if not event.isChainEnd():
+                pass
+            elif self._curEarliestKLineDateTimeStamp <= self._reqBeginDate:
+                self._reqByDateEnd = True
+                self.reqKLinesByCount(self._contractNo, self._reqKLineTimes * 4000, EEQU_NOTICE_NEED)
+            # 9.5 lack data
+            elif self._curEarliestKLineDateTimeStamp == self._lastEarliestKLineDateTimeStamp:
+                self._reqByDateEnd = True
+                self.reqKLinesByCount(self._contractNo, self._reqKLineTimes * 4000, EEQU_NOTICE_NEED)
+            # local lack data
+            elif self._curEarliestKLineDateTimeStamp > self._reqBeginDate:
+                self._reqKLineTimes += 1
+                self.reqKLinesByCount(self._contractNo, self._reqKLineTimes * 4000, EEQU_NOTICE_NOTNEED)
+                self._lastEarliestKLineDateTimeStamp = self._curEarliestKLineDateTimeStamp
+            else:
+                raise IndexError("can't be this case")
+        else:
+            self._updateHisRspData(event)
+            if self.isHisQuoteRspEnd(event):
+                self._reIndexHisRspData()
+                self._borderIndex = len(self._metaData[self._contractNo]["KLineData"])
+                # print("now borderIndex is ", self._borderIndex)
+                self._hisLength = len(self._metaData[self._contractNo]["KLineData"])
 
     def isHisQuoteRspEnd(self, event):
         if event.isChainEnd() and not self._reqByDate:
@@ -1322,30 +1373,6 @@ class StrategyHisQuote(object):
                 if len(rfdataList) == 0 or (len(rfdataList) >= 1 and kLineData["DateTimeStamp"] < rfdataList[0]["DateTimeStamp"]):
                     rfdataList.insert(0, kLineData)
 
-        # print("rfdatalist length = ", len(rfdataList))
-        # 如果是按照日期请求，指明是否继续请求
-        if event.isChainEnd() and self._reqByDate:
-            # 从9.5返回的数据为空的情况
-            if len(rfdataList) == 0:
-                self._reqByDateEnd = True
-                self.logger.info("[HisQuote] response data is empty or not useful")
-                return
-
-            # print("本次请求k线开始时间:", rfdataList[0]["DateTimeStamp"])
-            isNeedReqHisQuoteAgain = rfdataList[0]["DateTimeStamp"] > self._reqBeginDate
-            self._reqByDateEnd = not isNeedReqHisQuoteAgain
-
-            # 数据不够的情况
-            if rfdataList[0]["DateTimeStamp"] != self._earliestKLineDateTimeStamp:
-                self._earliestKLineDateTimeStamp = rfdataList[0]["DateTimeStamp"]
-            else:
-                isNeedReqHisQuoteAgain = False
-                self._reqByDateEnd = True
-            # ///////////////////////////////////////////////////////////////////
-            if not self._reqByDateEnd:
-                self._reqKLineTimes += 1
-                self.reqKLinesByCount(self._contractNo, self._reqKLineTimes * 4000, EEQU_NOTICE_NOTNEED)
-
     def _reIndexHisRspData(self):
         dataDict = self._metaData[self._contractNo]
         rfdataList = dataDict['KLineData']
@@ -1366,6 +1393,10 @@ class StrategyHisQuote(object):
 
     def onHisQuoteNotice(self, event):
         contNo = event.getContractNo()
+        if self._useSample and (contNo not in self._metaData or not self._metaData[contNo]["KLineReady"]):
+            # self.logger.err_error("notice data arrived before req data end, abandon")
+            return
+
         if contNo not in self._kLineNoticeData:
             self._kLineNoticeData[contNo] = {
                 'KLineType' : '',
@@ -1373,7 +1404,7 @@ class StrategyHisQuote(object):
                 'KLineReady':True,
                 'KLineData' : [],
             }
-            self._borderIndex = 1
+
         dataDict = self._kLineNoticeData[contNo]
         dataDict['KLineType'] = event.getKLineType()
         dataDict['KLineSlice'] = event.getKLineSlice()
@@ -1383,40 +1414,42 @@ class StrategyHisQuote(object):
         # notice数据，直接加到队尾
         for data in dataList:
             data["IsKLineStable"] = False
-            #没有数据，索引取回测数据的最后一条数据的索引，没有数据从1开始
+            # 没有数据，索引取回测数据的最后一条数据的索引，没有数据从1开始
             if len(rfdataList) == 0:
-                if contNo not in self._metaData:
-                    data["KLineIndex"] = 1
-                else:
-                    reportKlineData = self._metaData[contNo]['KLineData']
-                    data["KLineIndex"] = reportKlineData[-1]['KLineIndex']
-            #该周期的tick更新数据，索引不变
+                lastKLine = self._metaData[self._contractNo]['KLineData'][-1]
+                data["KLineIndex"] = self._borderIndex if lastKLine["DateTimeStamp"] == data["DateTimeStamp"] else self._borderIndex+1
+                # print("len of rfdatalist = ", len(rfdataList))
+                # print(self._metaData[self._contractNo]['KLineData'][-1]["DateTimeStamp"])
+                # print(dataList[0]["DateTimeStamp"])
+            # 该周期的tick更新数据，索引不变
             elif data["DateTimeStamp"] == rfdataList[-1]["DateTimeStamp"]:
                 data["KLineIndex"] = rfdataList[-1]["KLineIndex"]
-            #下个周期的数据，索引自增，标记K线稳定
+            # 下个周期的数据，索引自增，标记K线稳定
             elif data["DateTimeStamp"] > rfdataList[-1]["DateTimeStamp"]:
                 data["KLineIndex"] = rfdataList[-1]["KLineIndex"] + 1
                 rfdataList[-1]["IsKLineStable"] = True
 
-            #回测还没有结束，先保存数据
+            event = Event({
+                "EventCode":ST_TRIGGER_FILL_DATA,
+                "ContractNo":contNo,
+                "Data":data
+            })
+            self._strategy.sendTriggerQueue(event)
+
             if not self._strategy.isRealTimeStatus():
-                self._reportRealDataList.append(data)
-                #保证K线索引连续，数据也保存
                 rfdataList.append(data)
                 continue
-                
-            #回测结束，第一次收到数据,先发送回测阶段收到的实时数据，不发单
-            if self._isAfterReportFirstData:
-                self._afterReportRealData(contNo)
-                self._isAfterReportFirstData = False
-                
-            orderWay = self._config.getSendOrder()
+
+            # 回测结束，第一次收到数据,先发送回测阶段收到的实时数据，不发单
+            orderWay = str(self._config.getSendOrder())
             
             isLastKLineStable = False
             if len(rfdataList) >= 1:
                 isLastKLineStable = rfdataList[-1]["IsKLineStable"]
-            
-            #连续触发阶段，实时发单
+
+            # print("kline index = ", data["KLineIndex"], isLastKLineStable, orderWay)
+
+            # 连续触发阶段，实时发单
             if orderWay == SendOrderRealTime:
                 event = Event({
                     'EventCode': ST_TRIGGER_KLINE,
@@ -1424,15 +1457,20 @@ class StrategyHisQuote(object):
                     'Data': data
                 })
                 self._strategy.sendTriggerQueue(event)
-            #K线稳定后发单，不考虑闭市最后一笔触发问题
-            elif orderWay == SendOrderStable and isLastKLineStable:
-                event = Event({
-                    'EventCode'  : ST_TRIGGER_KLINE,
-                    'ContractNo' : contNo,
-                    'Data'       : rfdataList[-1],
-                })
-                self._strategy.sendTriggerQueue(event)
-                
+                # print("========================real time trigger")
+            # K线稳定后发单，不考虑闭市最后一笔触发问题
+            if orderWay == SendOrderStable and isLastKLineStable:
+                if self._borderIndex > 0 and rfdataList[-1]["DateTimeStamp"] == self._metaData[self._contractNo]['KLineData'][-1]["DateTimeStamp"]:
+                    pass
+                else:
+                    event = Event({
+                        'EventCode'  : ST_TRIGGER_KLINE,
+                        'ContractNo' : contNo,
+                        'Data'       : rfdataList[-1],
+                    })
+                    self._strategy.sendTriggerQueue(event)
+                    # print(rfdataList[-1]["DateTimeStamp"])
+                    # print("========================k line stable trigger")
             rfdataList.append(data)
 
     # ///////////////////////////回测接口////////////////////////////////
@@ -1598,14 +1636,15 @@ class StrategyHisQuote(object):
         self._strategy.sendEvent2Engine(event)
         
     def runReportRealTime(self, context, handle_data, event):
+
         '''发送回测阶段来的数据'''
         # 更新当前bar数据
-        contNo = event.getContractNo()
         data = event.getData()
-        self._updateCurBar(contNo, data)
-        self._updateOtherBar(contNo, data)
+        self._updateCurBar(self._contractNo, data)
+        # self._updateOtherBar(contNo, data)
         # 推送K线
-        self._updateRealTimeKLine(event.getData()) 
+        self._updateRealTimeKLine(data)
+        self._sendFlushEvent()
 
     def runRealTime(self, context, handle_data, event):
         '''K线实时触发'''
@@ -1615,8 +1654,7 @@ class StrategyHisQuote(object):
         # 更新当前bar数据
         self._updateCurBar(contNo, data)
         self._updateOtherBar(contNo, data)
-        # 推送K线
-        self._updateRealTimeKLine(data)
+
         # 执行策略函数
         handle_data(context)
         # 通知当前Bar结束

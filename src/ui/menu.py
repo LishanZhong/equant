@@ -36,6 +36,7 @@ class StrategyMenu(object):
         select = self.widget.identify_row(event.y)
         self.selected_item = event.widget.selection()
 
+        # 记录右键所选择的策略路径
         self._rightClickPath = self.widget.item(select)["values"][0]
 
         if self.selected_item:
@@ -67,7 +68,6 @@ class StrategyMenu(object):
         # 加载策略
         # TODO：进行操作前需要对当前选中的策略进行保存
         self._controller.load(self._rightClickPath)
-        print("Run is ready")
 
     def newStrategy(self):
         newFileWin = NewFileToplevel(self._controller.top)
@@ -160,6 +160,7 @@ class StrategyMenu(object):
 
             if not os.path.exists(path):
                 messagebox.showinfo(self.language.get_text(8), self.language.get_text(31))
+                return
             else:
                 if not os.path.exists(
                         os.path.join(os.path.dirname(path), renameTop.newEntry.get() + renameTop.typeChosen.get())):
@@ -252,6 +253,7 @@ class RunMenu(object):
         self.menu.add_command(label="停止", command=self.onQuit)
         self.menu.add_command(label="启动", command=self.onResume)
         self.menu.add_command(label="删除", command=self.onDelete)
+        self.menu.add_command(label="报告", command=self.onReport)
 
     def popupmenu(self, event):
         select = self.widget.identify_row(event.y)
@@ -261,9 +263,12 @@ class RunMenu(object):
 
         if self.selected_item:  # 选中之后右键弹出菜单
             for idx in self.selected_item:
-                self._strategyId.append(idx)
+                self._strategyId.append(int(idx))
         else:  # 没有选中，直接右键选择
-            self._strategyId.append(select)
+            if select:
+                self._strategyId.append(int(select))
+
+        print("strategyId: ", self._strategyId)
 
         if self.selected_item:
             if select:
@@ -299,3 +304,8 @@ class RunMenu(object):
     def onDelete(self):
         """删除策略"""
         self._controller.delStrategy(self._strategyId)
+
+    def onReport(self):
+        """展示报告"""
+        for id in self._strategyId:
+            self._controller.generateReportReq(id)

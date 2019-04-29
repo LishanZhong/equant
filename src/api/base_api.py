@@ -2577,10 +2577,10 @@ class BaseApi(object):
              设置运行方式，"H"表示回测，"A"表示在实盘上运行
 
         【语法】
-              int SetTradeMode(inActual, sendOrderType, useSample, useReal)
+              int SetTradeMode(bool inActual, string sendOrderType, bool useSample, bool useReal)
 
         【参数】
-              inActual True 表示在实盘上运行，False 表示在模拟盘上运行
+              inActual      True 表示在实盘上运行，False 表示在模拟盘上运行
               sendOrderType 在实盘上的发单方式，1 表示实时发单,2 表示K线完成后发单
               useSample     在模拟盘上是否使用历史数据进行回测
               useReal       在模拟盘上是否使用实时数据运行策略
@@ -2589,8 +2589,8 @@ class BaseApi(object):
               返回整型，0成功，-1失败
 
         【示例】
-              SetTradeMode(False, 0, True, True)    # 在模拟盘上使用历史数据回测，并使用实时数据继续运行策略
-              SetTradeMode(True, 2, True, True)     # 在模拟盘上使用历史数据回测，并使用实时数据继续运行策略；在实盘上使用实时数据运行策略，并在K线稳定后发单
+              SetTradeMode(False, "0", True, True)    # 在模拟盘上使用历史数据回测，并使用实时数据继续运行策略
+              SetTradeMode(True, "2", True, True)     # 在模拟盘上使用历史数据回测，并使用实时数据继续运行策略；在实盘上使用实时数据运行策略，并在K线稳定后发单
         '''
         return self._dataModel.setTradeMode(inActual, sendOrderType, useSample, useReal)
 

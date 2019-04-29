@@ -384,8 +384,8 @@ StrategyStatusPause         = "Pause"
 StrategyStatusExit          = "Exit"
 
 # 发单方式
-SendOrderRealTime           = "1"
-SendOrderStable             = "2"
+SendOrderRealTime           = '1'
+SendOrderStable             = '2'
 
 # 品种交易状态
 EEQU_TRADESTATE_BID             = '1'   # 集合竞价

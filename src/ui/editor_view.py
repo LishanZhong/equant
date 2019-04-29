@@ -327,15 +327,15 @@ class QuantEditor(StrategyTree):
         self.loadingBtn = Button(frame, text="加载", relief=FLAT, padx=10, bg=rgb_to_hex(255, 255, 255),
                             activebackground=rgb_to_hex(103, 150, 236), bd=0, state="disabled", command=self.load)
 
-        reportBtn = Button(frame, text="报告", relief=FLAT, padx=10, bg=rgb_to_hex(255, 255, 255),
-                           activebackground=rgb_to_hex(103, 150, 236), bd=0, command=self.reportDisplay)
+        # reportBtn = Button(frame, text="报告", relief=FLAT, padx=10, bg=rgb_to_hex(255, 255, 255),
+        #                    activebackground=rgb_to_hex(103, 150, 236), bd=0, command=self.reportDisplay)
 
         saveBtn = Button(frame, text="保存", relief=FLAT, padx=10, bg=rgb_to_hex(255, 255, 255),
                          activebackground=rgb_to_hex(103, 150, 236), bd=0, command=self.saveEditor)
 
         self.titleLabel.pack(side=LEFT)
         saveBtn.pack(side=RIGHT)
-        reportBtn.pack(side=RIGHT)
+        # reportBtn.pack(side=RIGHT)
         self.loadingBtn.pack(side=RIGHT)
 
     def setLoadBtnState(self):
@@ -408,5 +408,5 @@ class QuantEditor(StrategyTree):
             return
         messagebox.showinfo("提示", "未选择加载的策略")
 
-    def reportDisplay(self):
-        self.control.generateReportReq()
+    # def reportDisplay(self):
+    #     self.control.generateReportReq()
