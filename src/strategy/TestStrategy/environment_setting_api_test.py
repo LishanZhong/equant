@@ -57,7 +57,11 @@ def handle_data(context):
     print("config : ", GetConfig())
     SetTradeFee('C', 0.1, 2000000)
     print("config : ", GetConfig())
+<<<<<<< HEAD
     
+=======
+    '''
+>>>>>>> ad1a21420c5a8681042ccd54b810f1d4c46d8e2e
     print("config : ", GetConfig())
     SetTradeMode(False, 0, True, True)
     print("config : ", GetConfig())
@@ -65,9 +69,14 @@ def handle_data(context):
     print("config : ", GetConfig())
     SetTradeMode(False, 0, False, True)
     print("config : ", GetConfig())
+<<<<<<< HEAD
     '''
     SetBenchmark("ZCE|F|SR|905", "ZCE|F|AP|907", "ZCE|F|AP|910")
     print("config : ", GetConfig())
+=======
+
+
+>>>>>>> ad1a21420c5a8681042ccd54b810f1d4c46d8e2e
 
     '''
     context.i = context.i + 1
@@ -88,8 +97,11 @@ def handle_data(context):
 
 
 
+<<<<<<< HEAD
 
 
 
 
 
+=======
+>>>>>>> ad1a21420c5a8681042ccd54b810f1d4c46d8e2e

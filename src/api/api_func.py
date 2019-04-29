@@ -4,6 +4,7 @@
 _all_func_ = {
                 
     'K线数据': [
+<<<<<<< HEAD
                     # ['BarCount'            , 'Bar总数'],
                     # ['BarStatus'           , '当前Bar状态值'],
                     ['Close'               , '收盘价,简写C'],
@@ -17,6 +18,21 @@ _all_func_ = {
                     # ['Time'                , '当前Bar时间,简写T'],
                     # ['TradeDate'           , '当前Bar的交易日'],
                     # ['Vol'                 , '成交量,简写V'],
+=======
+                    ['BarCount'            , 'Bar总数'],
+                    ['BarStatus'           , '当前Bar状态值'],
+                    ['Close'               , '收盘价,简写C'],
+                    ['CurrentBar'          , '当前Bar索引值'],
+                    ['Date'                , '当前Bar日期,简写D'],
+                    ['High'                , '最高价,简写H'],
+                    ['HistoryDataExist'    , '历史数据是否存在'],
+                    ['Low'                 , '最低价,简写L'],
+                    ['Open'                , '开盘价,简写O'],
+                    ['OpenInt'             , '持仓量'],
+                    ['Time'                , '当前Bar时间,简写T'],
+                    ['TradeDate'           , '当前Bar的交易日'],
+                    ['Vol'                 , '成交量,简写V'], 
+>>>>>>> ad1a21420c5a8681042ccd54b810f1d4c46d8e2e
                 ],
                 
     '即时行情': [
@@ -88,6 +104,7 @@ _all_func_ = {
                     ['SymbolType'          , '品种编号'],
                 ],
                 
+<<<<<<< HEAD
     # '策略状态': [
     #                 ['AvgEntryPrice'       , '当前持仓平均建仓价格'],
     #                 ['BarsSinceEntry'      , '当前持仓的第一个建仓位置到当前位置的Bar计数'],
@@ -132,6 +149,52 @@ _all_func_ = {
     #                 ['TradeCost'           , '交易产生的手续费'],
     #                 ['TotalTrades'         , '交易总开仓手数'],
     #             ],
+=======
+    '策略状态': [
+                    ['AvgEntryPrice'       , '当前持仓平均建仓价格'],
+                    ['BarsSinceEntry'      , '当前持仓的第一个建仓位置到当前位置的Bar计数'],
+                    ['BarsSinceExit'       , '最近平仓位置到当前位置的Bar计数'],
+                    ['BarsSinceLastEntry'  , '当前持仓的最后一个建仓位置到当前位置的Bar计数'],
+                    ['ContractProfit'      , '当前持仓位置的每手浮动盈亏'],
+                    ['CurrentContracts'    , '当前持仓的持仓合约数'],
+                    ['CurrentEntries'      , '当前持仓的建仓次数'],
+                    ['EntryDate'           , '当前持仓的第一个建仓位置的日期'],
+                    ['EntryPrice'          , '当前持仓的第一个建仓价格'],
+                    ['EntryTime'           , '当前持仓的第一个建仓位置的时间'],
+                    ['ExitDate'            , '最近平仓位置Bar日期'],
+                    ['ExitPrice'           , '最近平仓位置的平仓价格'],
+                    ['ExitTime'            , '最近平仓位置Bar时间'],
+                    ['LastEntryDate'       , '当前持仓的最后一个建仓位置的日期'],
+                    ['LastEntryPrice'      , '当前持仓的最后一个建仓价格'],
+                    ['LastEntryTime'       , '当前持仓的最后一个建仓位置的时间'],
+                    ['MarketPosition'      , '当前持仓状态'],
+                    ['MaxContracts'        , '当前持仓的最大持仓合约数'],
+                    ['MaxEntries'          , '最大的建仓次数'],
+                    ['MaxPositionLoss'     , '当前持仓的最大浮动亏损数'],
+                    ['MaxPositionProfit'   , '当前持仓的最大浮动盈利数'],
+                    ['PositionProfit'      , '当前持仓位置的浮动盈亏'],
+                ],
+                
+                
+    '策略性能': [
+                    ['Available'           , '策略当前可用虚拟资金'],
+                    ['FloatProfit'         , '浮动盈亏'],
+                    ['GrossLoss'           , '累计总亏损'],
+                    ['GrossProfit'         , '累计总利润'],
+                    ['Margin'              , '持仓保证金'],
+                    ['NetProfit'           , '平仓盈亏'],
+                    ['NumEvenTrades'       , '保本交易总手数'],
+                    ['NumLosTrades'        , '亏损交易总手数'],
+                    ['NumWinTrades'        , '盈利交易总手数'],
+                    ['NumAllTimes'         , '开仓次数'],
+                    ['NumWinTimes'         , '盈利次数'],
+                    ['NumLoseTimes'        , '亏损次数'],
+                    ['NumEventTimes'       , '保本次数'],
+                    ['PercentProfit'       , '盈利成功率'],
+                    ['TradeCost'           , '交易产生的手续费'],
+                    ['TotalTrades'         , '交易总开仓手数'],
+                ],
+>>>>>>> ad1a21420c5a8681042ccd54b810f1d4c46d8e2e
                 
     '账户函数': [
                     ['A_AccountID'         , '交易账户ID'],
@@ -163,6 +226,7 @@ _all_func_ = {
                     ['A_DeleteOrder'       , '撤单']
                 ],
                 
+<<<<<<< HEAD
     # '枚举函数': [
     #                 ['Enum_Buy'            , '买卖类型_买入'],
     #                 ['Enum_Sell'           , '买卖类型_卖出'],
@@ -195,6 +259,40 @@ _all_func_ = {
     #                 ['Enum_Period_Year'    , '周期类型_年线'],
     #                 ['Enum_Period_DayX'    , '周期类型_多日'],
     #             ],
+=======
+    '枚举函数': [
+                    ['Enum_Buy'            , '买卖类型_买入'],
+                    ['Enum_Sell'           , '买卖类型_卖出'],
+                    ['Enum_Entry'          , '开平类型_开仓'], 
+                    ['Enum_Exit'           , '开平类型_平仓'],
+                    ['Enum_ExitToday'      , '开平类型_平今'],
+                    ['Enum_EntryExitIgnore', '开平类型_不区分开平'],
+                    ['Enum_Sended'         , '已发送'],
+                    ['Enum_Accept'         , '已受理'],
+                    ['Enum_Triggering'     , '待触发'],
+                    ['Enum_Active'         , '已生效'],
+                    ['Enum_Queued'         , '已排队'],   
+                    ['Enum_FillPart'       , '部分成交'],
+                    ['Enum_Filled'         , '完全成交'],
+                    ['Enum_Canceling'      , '待撤'],
+                    ['Enum_Modifying'      , '待改'],
+                    ['Enum_Canceled'       , '已撤单'],
+                    ['Enum_PartCanceled'   , '已撤余单'],
+                    ['Enum_Fail'           , '指令失败'],
+                    ['Enum_Suspended'      , '已挂起'],
+                    ['Enum_Apply'          , '已申请'],
+                    ['Enum_Period_Tick'    , '周期类型_分笔'],
+                    ['Enum_Period_Dyna'    , '周期类型_分时'],
+                    ['Enum_Period_Second'  , '周期类型_秒线'],
+                    ['Enum_Period_Min'     , '周期类型_分钟'],
+                    ['Enum_Period_Hour'    , '周期类型_小时'],
+                    ['Enum_Period_Day'     , '周期类型_日线'],
+                    ['Enum_Period_Week'    , '周期类型_周线'],
+                    ['Enum_Period_Month'   , '周期类型_月线'],
+                    ['Enum_Period_Year'    , '周期类型_年线'],
+                    ['Enum_Period_DayX'    , '周期类型_多日'],
+                ],
+>>>>>>> ad1a21420c5a8681042ccd54b810f1d4c46d8e2e
                 
     '绘图函数': [
                     ['PlotNumeric'         , '绘制指标线'],
