@@ -259,11 +259,7 @@ class BaseApi(object):
         【实例】
               无
         '''
-<<<<<<< HEAD
         return self._dataModel.getBarStatus()
-=======
-        return self._dataModel.BarStatus()
->>>>>>> ad1a21420c5a8681042ccd54b810f1d4c46d8e2e
 
     def HistoryDataExist(self):
         '''
@@ -282,11 +278,7 @@ class BaseApi(object):
         【实例】
               无
         '''
-<<<<<<< HEAD
         return self._dataModel.isHistoryDataExist()
-=======
-        return self._dataModel.HistoryDataExist()
->>>>>>> ad1a21420c5a8681042ccd54b810f1d4c46d8e2e
 
     #/////////////////////////即时行情/////////////////////////////
     def Q_AskPrice(self, symbol='', level=1):
@@ -2400,43 +2392,25 @@ class BaseApi(object):
     def GetConfig(self):
         return self._dataModel.getConfig()
 
-<<<<<<< HEAD
     def SetBenchmark(self, contractNo):
-=======
-    def SetBenchmark(self,symbolTuple):
->>>>>>> ad1a21420c5a8681042ccd54b810f1d4c46d8e2e
         '''
         【说明】
               设置基准合约及相关联的合约列表
 
         【语法】
-<<<<<<< HEAD
               int SetBenchmark(contractNo1, contractNo2, contractNo3, ...)
 
         【参数】
               contractNo 合约编号，第一个元素为基准合约
-=======
-              int SetBenchmark(tuple symbolTuple)
-
-        【参数】
-              symbolTuple 元组，第一个元素为基准合约
->>>>>>> ad1a21420c5a8681042ccd54b810f1d4c46d8e2e
 
         【备注】
               返回整型, 0成功，-1失败
 
         【示例】
-<<<<<<< HEAD
               SetBenchmark('ZCE|F|SR|905')
               SetBenchmark('ZCE|F|SR|905', 'ZCE|F|SR|912', 'ZCE|F|SR|001')
         '''
         return self._dataModel.setSetBenchmark(contractNo)
-=======
-              SetBenchmark(('ZCE|F|SR|905',))
-              SetBenchmark(('ZCE|F|SR|905', 'ZCE|F|SR|912', 'ZCE|F|SR|001'))
-        '''
-        return self._dataModel.setSetBenchmark(symbolTuple)
->>>>>>> ad1a21420c5a8681042ccd54b810f1d4c46d8e2e
 
     def SetUserNo(self, userNo):
         '''
@@ -2920,13 +2894,8 @@ def Enum_Period_DayX():
 def GetConfig():
     return baseApi.GetConfig()
 
-<<<<<<< HEAD
 def SetBenchmark(*contractNo):
     return baseApi.SetBenchmark(contractNo)
-=======
-def SetBenchmark(symbolTuple):
-    return baseApi.SetBenchmark(symbolTuple)
->>>>>>> ad1a21420c5a8681042ccd54b810f1d4c46d8e2e
 
 def SetUserNo(userNo=''):
     return baseApi.SetUserNo(userNo)
