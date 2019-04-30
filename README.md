@@ -13,15 +13,13 @@
 
 2. 安装极星量化  
     a. 从github或者gitee，下载极星量化终端  
-    c. 将极星量化终端放到与9.5客户端同级目录，例如:D:\equant，并解压  
+    b. 将极星量化终端放到与9.5客户端同级目录，例如:D:\equant，并解压  
 
 3. 安装Anaconda3  
     a. 单击[Anaconda3](https://repo.anaconda.com/archive/Anaconda3-2019.03-Windows-x86_64.exe)下载  
     b. 双击安装文件，点击"Next",出现"Add Anaconda3 to the system PATH environment variable"时勾选,其他点击"Next"  
-    
-4. 安装python依赖包 
-    a. 安装talib库  
-        a1. Win+R运行cmd，执行pip install https://download.lfd.uci.edu/pythonlibs/q5gtlas7/TA_Lib-0.4.17-cp37-cp37m-win_amd64.whl   
+    c. 命令行运行，pip install https://download.lfd.uci.edu/pythonlibs/q5gtlas7/TA_Lib-0.4.17-cp37-cp37m-win_amd64.whl   
+     
         
 #### 使用说明
 1. 打开极星9.5客户端，点击"量化"按钮，点击"Python"，打开极星量化终端，进行试用

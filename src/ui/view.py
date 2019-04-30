@@ -156,14 +156,14 @@ class QuantApplication(object):
         ReportView(data, parent)
         parent.display_()
 
-    def updateStatus(self, strategyIdList, value):
+    def updateStatus(self, strategyId, dataDict):
         """
         更新策略状态
         :param strategyIdList: 策略Id列表
-        :param value: 更新所选中的策略的状态值（更新所有状态）
+        :param dataDict: strategeId对应的策略的所有信息
         :return:
         """
-        self.quant_monitor.updateStatus(strategyIdList, value)
+        self.quant_monitor.updateStatus(strategyId, dataDict)
 
     def delStrategy(self, strategyId):
         """

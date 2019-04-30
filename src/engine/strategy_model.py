@@ -39,13 +39,16 @@ class StrategyModel(object):
     def getConfigData(self):
         return self._cfgModel.getConfig()
 
+    def getConfigModel(self):
+        return self._cfgModel
+
     # +++++++++++++++++++++++内部接口++++++++++++++++++++++++++++
     def _createCalc(self):
         strategyParam = {
-            "InitialFunds": 1000000, #self._cfgModel.getInitialFunds(),        # 初始资金
-            "StrategyName": 'TEST111', #self._strategy.getStrategyName(),        # 策略名称
-            "StartTime"   : '2019-04-01' ,#self._cfgModel.getStartTime(),           # 回测开始时间
-            "EndTime"     : '2019-04-17', #self._cfgModel.getEndTime(),             # 回测结束时间
+            "InitialFunds": 1000000,        # self._cfgModel.getInitialFunds(),        # 初始资金
+            "StrategyName": 'TEST111',      # self._strategy.getStrategyName(),        # 策略名称
+            "StartTime"   : '2019-04-01' ,  # self._cfgModel.getStartTime(),           # 回测开始时间
+            "EndTime"     : '2019-04-17',   # self._cfgModel.getEndTime(),             # 回测结束时间
             "Margin"      : 0.08,                                    # 保证金
             "Slippage"    : 0,                                       # 滑点
             "OpenRatio"   : 0.08,
@@ -54,7 +57,7 @@ class StrategyModel(object):
             "CloseFixed"  : 0,
             "CloseTodayRatio": 0.08,
             "CloseTodayFixed": 0,
-            "KLineType"   : 'M', #self._cfgModel.getKLineType(),                        # K线类型
+            "KLineType"   : 'M',            # self._cfgModel.getKLineType(),                        # K线类型
             "KLineSlice"  : 1,                          # K线间隔（1， 2， 5）
             "TradeDot"    : 10,                         # 每手乘数
             "PriceTick"   : 0.01,                       # 最小变动价位
@@ -71,8 +74,8 @@ class StrategyModel(object):
         self._hisModel.initialize()
         self._trdModel.initialize()
         
-    #++++++++++++++++++++++策略接口++++++++++++++++++++++++++++++
-    #//////////////////////历史行情接口//////////////////////////
+    # ++++++++++++++++++++++策略接口++++++++++++++++++++++++++++++
+    # //////////////////////历史行情接口//////////////////////////
     def runReport(self, context, handle_data):
         self._hisModel.runReport(context, handle_data)
         
@@ -82,7 +85,12 @@ class StrategyModel(object):
             self._hisModel.runRealTime(context, handle_data, event)
         elif code == ST_TRIGGER_FILL_DATA:
             self._hisModel.runReportRealTime(context, handle_data, event)
-        else:
+        elif code == ST_TRIGGER_CYCLE or code == ST_TRIGGER_TIMER:
+            if not self._strategy.isRealTimeStatus():
+                return
+            else:
+                self._hisModel.runOtherTrigger(context, handle_data, event)
+        elif code == ST_TRIGGER_TRADE:
             pass
 
     def reqHisQuote(self):
@@ -1055,15 +1063,27 @@ class StrategyConfig(object):
             runMode['Simulate']['UseSample'] = useSample
             runMode['Simulate']['Continues'] = useReal
 
-
     def getSendOrder(self):
         return self._metaData['RunMode']['SendOrder']
 
-    def isKLineTrigger(self):
+    def hasKLineTrigger(self):
         return bool(self._metaData['Trigger']['KLine'])
+
+    def hasTimerTrigger(self):
+        return bool(self._metaData['Trigger']['Timer'])
+
+    def hasCycleTrigger(self):
+        return bool(self._metaData['Trigger']['Cycle'])
+
+    def hasSnapShotTrigger(self):
+        return bool(self._metaData['Trigger']['SnapShot'])
+
+    def hasTradeTrigger(self):
+        return bool(self._metaData['Trigger']['Trade'])
 
     def isActualRun(self):
         return bool(self._metaData['RunMode']['Actual']['SendOrder2Actual'])
+
 
 class BarInfo(object):
     def __init__(self, logger):
@@ -1249,7 +1269,7 @@ class StrategyHisQuote(object):
             else:
                 raise NotImplementedError
 
-    #//////////////////////////K线处理接口////////////////////////
+    # //////////////////////////K线处理接口////////////////////////
     def reqKLinesByCount(self, contNo, count, notice):
         # print("请求k线", contNo, count)
         # 请求历史K线阶段先不订阅    
@@ -1398,9 +1418,11 @@ class StrategyHisQuote(object):
     def onHisQuoteNotice(self, event):
         contNo = event.getContractNo()
         if self._useSample and (contNo not in self._metaData or not self._metaData[contNo]["KLineReady"]):
-            # self.logger.err_error("notice data arrived before req data end, abandon")
+            # print("notice data arrived before req data end, abandon", self._metaData[contNo]["KLineReady"], event.isChainEnd())
+            # print(" length = ", len(self._metaData[self._contractNo]['KLineData']))
             return
 
+        kLineTrigger = self._config.hasKLineTrigger()
         if contNo not in self._kLineNoticeData:
             self._kLineNoticeData[contNo] = {
                 'KLineType' : '',
@@ -1457,7 +1479,7 @@ class StrategyHisQuote(object):
             # print("kline index = ", data["KLineIndex"], isLastKLineStable, orderWay)
 
             # 连续触发阶段，实时发单
-            if orderWay == SendOrderRealTime:
+            if orderWay == SendOrderRealTime and kLineTrigger:
                 event = Event({
                     'EventCode': ST_TRIGGER_KLINE,
                     'ContractNo': contNo,
@@ -1466,7 +1488,7 @@ class StrategyHisQuote(object):
                 self._strategy.sendTriggerQueue(event)
                 # print("========================real time trigger")
             # K线稳定后发单，不考虑闭市最后一笔触发问题
-            if orderWay == SendOrderStable and isLastKLineStable:
+            if orderWay == SendOrderStable and isLastKLineStable and kLineTrigger:
                 if self._borderIndex > 0 and rfdataList[-1]["DateTimeStamp"] == self._metaData[self._contractNo]['KLineData'][-1]["DateTimeStamp"]:
                     pass
                 else:
@@ -1586,24 +1608,22 @@ class StrategyHisQuote(object):
     def runReport(self, context, handle_data):
         '''历史回测接口'''
         # 不使用历史K线，也需要切换
+        # 切换K线
+        self._switchKLine(self._contractNo)
+        # 增加信号线
+        self._addSignal()
+        self._sendFlushEvent()
+
         if not self._useSample:
-            # 切换K线
-            self._switchKLine(self._contractNo)
-            # 增加信号线
-            self._addSignal()
-            self._sendFlushEvent()
             return
 
         while not self._isAllReady():
             time.sleep(1)
         # ==============使用基准合约回测==================
-        # 切换K线
-        self._switchKLine(self._contractNo)
-        # # 增加信号线
-        self._addSignal()
         # TODO: 基准合约和其他合约通过时间戳对应，暂时不考虑tick
         dataList = self._metaData[self._contractNo]['KLineData']
-
+        # print("data list is ")
+        # print(dataList)
         self.logger.info('[runReport] run report begin')
         beginIndex = 0
         for i, data in enumerate(dataList):
@@ -1612,7 +1632,8 @@ class StrategyHisQuote(object):
             # 根据基准合约，更新其他Bar
             self._updateOtherBar(self._contractNo, data)
             # 执行策略函数
-            handle_data(context)
+            if self._config.hasKLineTrigger():
+                handle_data(context)
             # 通知当前Bar结束
             self._afterBar(self._contractNo)
             if i%200==0:
@@ -1645,6 +1666,14 @@ class StrategyHisQuote(object):
         })
         self._strategy.sendEvent2Engine(event)
 
+    def runOtherTrigger(self, context, handle_data, event):
+        contNo = self._contractNo
+        # 执行策略函数
+        handle_data(context)
+        # 通知当前Bar结束
+        self._afterBar(contNo)
+        self._sendFlushEvent()
+
     def runReportRealTime(self, context, handle_data, event):
         '''发送回测阶段来的数据'''
         # 更新当前bar数据
@@ -1652,6 +1681,7 @@ class StrategyHisQuote(object):
         self._updateCurBar(self._contractNo, data)
         # self._updateOtherBar(contNo, data)
         # 推送K线
+        # print("k line index = ", data["KLineIndex"])
         self._updateRealTimeKLine(data)
         self._sendFlushEvent()
 
@@ -1659,7 +1689,7 @@ class StrategyHisQuote(object):
         '''K线实时触发'''
         contNo = event.getContractNo()
         data = event.getData()
-        
+        # print("run real time ")
         # 更新当前bar数据
         self._updateCurBar(contNo, data)
         self._updateOtherBar(contNo, data)

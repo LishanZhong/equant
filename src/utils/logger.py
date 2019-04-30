@@ -3,9 +3,6 @@ import sys,os
 from multiprocessing import Queue, Process
 from capi.com_types import *
 
-class Test(object):
-    def __init__(self):
-        self.data = "daaa"
 
 class MyHandlerText(logging.StreamHandler):
     '''put log to Tkinter Text'''
@@ -19,6 +16,7 @@ class MyHandlerText(logging.StreamHandler):
         self.textctrl.insert("end", msg + "\n")
         self.flush()
         self.textctrl.config(state="disabled")
+
 
 class MyHandlerQueue(logging.StreamHandler):
     def __init__(self, gui_queue, sig_queue, err_queue):
@@ -40,6 +38,7 @@ class MyHandlerQueue(logging.StreamHandler):
         else:
             self.gui_queue.put(msg, block=False, timeout=1)
 
+
 class Logger(object):
     def __init__(self):
         #process queue
@@ -55,7 +54,7 @@ class Logger(object):
 
         #logger config
         self.logger = logging.getLogger()
-        self.logger.setLevel(logging.DEBUG)
+        self.logger.setLevel(logging.CRITICAL)
         self.formatter = logging.Formatter("[%(levelname)7s][%(asctime)-15s]: %(message)s")
 
         self.level_dict = {"DEBUG":logging.DEBUG, "INFO":logging.INFO, "WARN":logging.WARN, "ERROR":logging.ERROR}

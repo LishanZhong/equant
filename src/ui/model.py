@@ -124,7 +124,7 @@ class SendRequest(object):
             "SessionId": 0,
             "StrategyId": strategyId,
             "UserNo": "",
-            "Data": ""
+            "Data": {}
         }
         event = Event(msg)
         try:
@@ -138,7 +138,7 @@ class SendRequest(object):
             "EventSrc": EEQU_EVSRC_UI,
             "EventCode": EV_UI2EG_EQUANT_EXIT,
             "SessionId": 0,
-            "Data": ""
+            "Data": {}
         }
         event = Event(msg)
 
@@ -150,42 +150,49 @@ class SendRequest(object):
     def strategyPause(self, strategyId):
         """策略暂停事件"""
         msg = {
-            "EventSrc": EEQU_EVSRC_UI,
-            "EventCode": EV_UI2EG_STRATEGY_PAUSE,
-            "SessionId": 0,
-            "Data": strategyId
+            "EventSrc"    :   EEQU_EVSRC_UI,
+            "EventCode"   :   EV_UI2EG_STRATEGY_PAUSE,
+            "StrategyId"  :   strategyId,
+            "SessionId"   :   0,
+            "Data"        :   {}
         }
 
         event = Event(msg)
 
         self._ui2egQueue.put(event)
-        print("暂停事件已发送")
 
     def strategyResume(self, strategyId):
         """策略运行恢复"""
         msg = {
-            "EventSrc": EEQU_EVSRC_UI,
-            "EventCode": EV_UI2EG_STRATEGY_RESUME,
-            "SessionId": 0,
-            "Data": strategyId
+            "EventSrc"    :   EEQU_EVSRC_UI,
+            "EventCode"   :   EV_UI2EG_STRATEGY_RESUME,
+            "SessionId"   :   0,
+            "StrategyId"  :   strategyId,
+            "Data"        :   {}
         }
 
         event = Event(msg)
         self._ui2egQueue.put(event)
-        print("恢复事件已发送")
 
     def strategyQuit(self, strategyId):
         """策略停止运行"""
         msg = {
-            "EventSrc": EEQU_EVSRC_UI,
-            "EventCode": EV_UI2EG_STRATEGY_QUIT,
-            "SessionId": 0,
-            "Data": strategyId
+            "EventSrc"    :   EEQU_EVSRC_UI,
+            "EventCode"   :   EV_UI2EG_STRATEGY_QUIT,
+            "SessionId"   :   0,
+            "StrategyId"  :   strategyId,
+            "Data"        :   {}
         }
 
         event = Event(msg)
         self._ui2egQueue.put(event)
-        print("停止事件已发送")
+
+    def strategySignal(self, strategyId):
+        msg = {
+            "EventSrc": EEQU_EVSRC_UI,
+            "EventCode": EV_UI2EG_STRATEGY
+        }
+        pass
 
 
 # class AskRequest(object):
@@ -301,8 +308,6 @@ class GetEgData(object):
 
     def _onEgUserInfo(self, event):
         """获取引擎推送资金账户"""
-        # if event.getChain() == '0':  # 信息发送完成标志
-        #     self.isChian = False
         userInfo = event.getData()
         self._userNo.extend(userInfo)
 
@@ -319,15 +324,13 @@ class GetEgData(object):
                 "Status":       sStatus
             }
             self._stManager.add_(dataDict)
-            self._stManager.updateStrategyStatus(id, sStatus)
         else:
-            # print('Status test')
             # TODO：策略状态改变后要通知监控界面
             self._stManager.updateStrategyStatus(id, sStatus)
+            # TODO：直接将dataDict传进去？
+            dataDict = self._stManager.getSingleStrategy(id)
 
-            data = self._stManager.getSingleStrategy(id)
-
-            self._app.updateStatus([id], (id, ['StrategyName'], "1", "2", "2"))
+            self._app.updateStatus(id, dataDict)
 
     def handlerEgEvent(self):
         while True:
@@ -387,27 +390,28 @@ class StrategyManager(object):
         self._strategyDict[id].update({"Data": data})
 
     def removeStrategy(self, id):
-        #TODO: 什么时候remove？
         if id in self._strategyDict:
             self._strategyDict.pop(id)
 
     def queryStrategyStatus(self, id):
-        return self._strategyDict[id]["Status"]
+        return self._strategyDict[id]["StrategyState"]
 
     def queryStrategyRunType(self, id):
         return self._strategyDict[id]["RunType"]
 
     def getStrategyData(self, id):
-        return self._strategyDict[id]["Data"]
+        return self._strategyDict[id]["Config"]
 
     def queryStrategyName(self, id):
         return self._strategyDict[id]["StrategyName"]
 
     def updateStrategyStatus(self, id, status):
-        self._strategyDict[id]["Status"] = status
+        self._strategyDict[id]["StrategyState"] = status
 
     def getStrategyDict(self):
+        """获取全部运行策略"""
         return self._strategyDict
 
     def getSingleStrategy(self, id):
+        """获取某个运行策略"""
         return self._strategyDict[id]

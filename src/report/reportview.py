@@ -732,10 +732,10 @@ class Graph(BaseFrame):
                 children_item = self.graph_tree.item(id)["text"]
                 children_tag = self.graph_tree.item(id)["tags"][0]
                 parent_tag = self.graph_tree.item(parent_id)["tags"][0]
-                print("parent_id", parent_id)
-                print("children_item", children_item)
-                print("children_tag", children_tag)
-                print("parent_tag", parent_tag)
+                # print("parent_id", parent_id)
+                # print("children_item", children_item)
+                # print("children_tag", children_tag)
+                # print("parent_tag", parent_tag)
 
                 x, y = self.get_plot_data(parent_tag, children_tag)
                 self.ax.cla()

@@ -179,6 +179,10 @@ class StrategyEngine(object):
                 self._loadStrategy(event)
             elif code == EV_UI2EG_REPORT:
                 self._noticeStrategyReport(event)
+            elif code == EV_UI2EG_STRATEGY_PAUSE:
+                self._onStrategyPause(event)
+            elif code == EV_UI2EG_EQUANT_EXIT:
+                self._onEquantExit(event)
         except queue.Empty as e:
             pass
 
@@ -732,7 +736,9 @@ class StrategyEngine(object):
 
     # 暂停当前策略
     def _onStrategyPause(self, event):
-        self._sendEvent2Strategy(event.getStrategyId(), event)
+        #print("======================")
+        #strategyId = 1
+        self._sendEvent2Strategy(event.getStartegyId(), event)
 
     # 恢复当前策略
     def _onStrategyResume(self, event):
@@ -740,9 +746,11 @@ class StrategyEngine(object):
 
     #  当量化退出时，发事件给所有的策略
     def _onEquantExit(self, event):
+        #print("exit==========")
         # self._sendEvent2AllStrategy(event)
-        import json
-        # 保存到文件
-        context = self._strategy.getEnvironment()
-        jsonFile = open('StrategyContext.json', 'w', encoding='utf-8')
-        json.dump(context, jsonFile, ensure_ascii=False, indent=4)
+        # import json
+        # # 保存到文件
+        # context = self._strategy.getEnvironment()
+        # jsonFile = open('StrategyContext.json', 'w', encoding='utf-8')
+        # json.dump(context, jsonFile, ensure_ascii=False, indent=4)
+        pass

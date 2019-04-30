@@ -123,11 +123,14 @@ class QuantMonitor(object):
     def _getStrategyStatus(self, key):
         return self.statusDict[key]
 
-    def updateSingleExecute(self, dataDict):
-        # print("dataDict: ", dataDict)
+    def _formatMonitorInfo(self, dataDict):
+        """
+        格式化监控需要的信息
+        :param dataDict: 策略的所有信息
+        :return: 需要展示的信息
+        """
         status = self._getStrategyStatus(dataDict["StrategyState"])
-        runType = '是' if dataDict['Config']['RunMode']['Actual']['SendOrder2Actual'] else "否"
-
+        runType = "是" if dataDict['Config']['RunMode']['Actual']['SendOrder2Actual'] else "否"
 
         values = [
             dataDict['StrategyId'],
@@ -136,6 +139,11 @@ class QuantMonitor(object):
             status,
             runType,
         ]
+
+        return values
+
+    def updateSingleExecute(self, dataDict):
+        values = self._formatMonitorInfo(dataDict)
         self.executeListTree.insert("", END, iid=dataDict['StrategyId'], values=tuple(values), tag=0)
 
     def createErr(self):
@@ -286,8 +294,9 @@ class QuantMonitor(object):
         """删除策略"""
         self.executeListTree.delete(strategyId)
 
-    def updateStatus(self, strategyIdList, value):
+    def updateStatus(self, strategyId, dataDict):
         """更新策略ID对应的策略状态"""
-        for id in strategyIdList:
-            self.executeListTree.set(id, value=value)
-
+        values = self._formatMonitorInfo(dataDict)
+        print("values: ", values)
+        self.executeListTree.item(strategyId, values=values)
+        # self.executeListTree.update()

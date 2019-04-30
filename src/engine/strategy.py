@@ -13,7 +13,7 @@ import traceback
 import importlib
 import queue
 import datetime
-
+from datetime import datetime
 
 
 class StartegyManager(object):
@@ -86,7 +86,7 @@ class Strategy:
         # self._processExit = False
 
         # 策略所在进程状态, Ready、Running、Exit、Pause
-        self._strategyState = "Ready"
+        self._strategyState = StrategyStatusReady
         #
         self._runStatus = ST_STATUS_NONE
 
@@ -101,7 +101,7 @@ class Strategy:
 
     # ////////////////////////////对外接口////////////////////
     def _initialize(self):
-        self._strategyState = "Running"
+        self._strategyState = StrategyStatusRunning
         moduleDir, moduleName = os.path.split(self._filePath)
         moduleName = os.path.splitext(moduleName)[0]
 
@@ -143,7 +143,7 @@ class Strategy:
         except Exception as e:
             errorText = traceback.format_exc()
             # traceback.print_exc()
-            self._strategyState = "Exit"
+            self._strategyState = StrategyStatusExit
             self._exit(-1, errorText)
 
     def run(self):
@@ -167,10 +167,10 @@ class Strategy:
     
     # ////////////////////////////内部接口////////////////////
     def _isExit(self):
-        return self._strategyState == "Exit"
+        return self._strategyState == StrategyStatusExit
 
     def _isPause(self):
-        return self._strategyState == "Pause"
+        return self._strategyState == StrategyStatusPause
 
     # 从engine进程接受事件并处理
     def _mainLoop(self):
@@ -205,25 +205,44 @@ class Strategy:
         
     def _triggerTime(self):
         '''检查定时触发'''
-        pass
-        # if not self._argsDict["Trigger"]["Timer"]:
-        #     return
-        # event = Event({
-        #     "EventCode": ST_TRIGGER_TIMER
-        # })
-        # self._triggerQueue.put(event)
+        if not self._dataModel.getConfigModel().hasTimerTrigger():
+            return
+
+        nowStr = datetime.now().strftime("%Y%m%d%H%M%S")
+        for i,timeSecond in enumerate(self._dataModel.getConfigData()['Trigger']['Timer']):
+            if 0<=(int(nowStr)-int(timeSecond))<1 and not self._isTimeTriggered[i]:
+                self._isTimeTriggered[i] = True
+                event = Event({
+                    "EventCode" : ST_TRIGGER_TIMER,
+                    "ContractNo": self._dataModel.getConfigModel().getBenchmark(),
+                    "Data":{
+                        "TriggerType":"Timer"
+                    }
+                })
+                self._triggerQueue.put(event)
         
     def _triggerCycle(self):
         '''检查周期性触发'''
-        pass
-        # if not self._argsDict["Trigger"]["Cycle"]:
-        #     return
-        # event = Event({
-        #     "EventCode": ST_TRIGGER_CYCLE
-        # })
-        # self._triggerQueue.put(event)
+        if not self._dataModel.getConfigModel().hasCycleTrigger():
+            return
+
+        nowTime = datetime.now()
+        cycle = self._dataModel.getConfigData()['Trigger']['Cycle']
+        if (nowTime - self._nowTime).total_seconds()*1000>cycle:
+            self._nowTime = nowTime
+            event = Event({
+                "EventCode": ST_TRIGGER_CYCLE,
+                "ContractNo": self._dataModel.getConfigModel().getBenchmark(),
+                "Data":{
+                    "TriggerType":"CYCLE"
+                }
+            })
+            self._triggerQueue.put(event)
         
     def _runTimer(self):
+        timeList = self._dataModel.getConfigData()['Trigger']['Timer']
+        self._isTimeTriggered = [False for i in timeList]
+        self._nowTime = datetime.now()
         '''秒级定时器'''
         while not self._isExit() and not self._isPause():
             # 定时触发
@@ -267,6 +286,8 @@ class Strategy:
             EEQU_SRVEVENT_TRADE_MATCH       : self._onTradeMatch        ,
             EEQU_SRVEVENT_TRADE_POSITION    : self._onTradePosition     ,
             EEQU_SRVEVENT_TRADE_FUNDQRY     : self._onTradeFundRsp      ,
+
+            EV_UI2EG_STRATEGY_PAUSE         : self._onStrategyPause,
         }
     
     # ////////////////////////////内部数据请求接口////////////////////
@@ -465,3 +486,8 @@ class Strategy:
         time.sleep(5)
         os._exit(0)
 
+    def _onStrategyPause(self, event):
+        self._strategyState = StrategyStatusPause
+
+    def _onStrategyResume(self, event):
+        self._strategyState = StrategyStatusRunning

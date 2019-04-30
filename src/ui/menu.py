@@ -253,6 +253,7 @@ class RunMenu(object):
         self.menu.add_command(label="启动", command=self.onResume)
         self.menu.add_command(label="删除", command=self.onDelete)
         self.menu.add_command(label="报告", command=self.onReport)
+        # self.menu.add_command(label="信号图", command=self.onSwitch)
 
     def popupmenu(self, event):
         select = self.widget.identify_row(event.y)
