@@ -41,10 +41,13 @@ def save(data):
     # runType = get_execute_type()
     runType = "测试"
     strategyName = "双均线交易系统"
-    file_path = os.path.abspath(r"./reportdata/")
+    fileDir = os.path.abspath(r"./reportdata/")
+    if not os.path.exists(fileDir):
+        os.makedirs(fileDir)
+
     current_time = time.strftime('%Y-%m-%d %H.%M.%S', time.localtime(time.time()))
-    file_name = file_path + '\\' + strategyName + '\\' + runType + current_time + '.pkl'
-    strategyPath = file_path + '\\' + strategyName
+    file_name = fileDir + '\\' + strategyName + '\\' + runType + current_time + '.pkl'
+    strategyPath = fileDir + '\\' + strategyName
 
     if not os.path.exists(strategyPath):
         os.mkdir(strategyPath)

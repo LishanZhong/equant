@@ -324,7 +324,7 @@ class QuantEditor(StrategyTree):
     def insertEditorHead(self, frame):
         self.titleLabel = Label(frame, text=os.path.basename(self.root_path), bg=rgb_to_hex(255, 255, 255))
 
-        self.loadingBtn = Button(frame, text="加载", relief=FLAT, padx=10, bg=rgb_to_hex(255, 255, 255),
+        self.loadingBtn = Button(frame, text="运行", relief=FLAT, padx=10, bg=rgb_to_hex(255, 255, 255),
                             activebackground=rgb_to_hex(103, 150, 236), bd=0, state="disabled", command=self.load)
 
         # reportBtn = Button(frame, text="报告", relief=FLAT, padx=10, bg=rgb_to_hex(255, 255, 255),

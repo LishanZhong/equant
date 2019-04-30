@@ -6,8 +6,6 @@ from tkinter import messagebox
 from .model import QuantModel, SendRequest
 from .view import QuantApplication
 from .language import *
-from report.reportview import ReportView
-from .com_view import HistoryToplevel
 
 from utils.utils import save
 
@@ -75,9 +73,9 @@ class TkinterController(object):
 
     def load(self, strategyPath):
         """加载合约事件"""
-        self.app.createLoadWin()
+        self.app.createRunWin()
 
-        config = self.app.loadWin.getConfig()
+        config = self.app.runWin.getConfig()
         if config:   # 获取到config
             self._request.loadRequest(strategyPath, config)
             self.logger.info("load strategy")
@@ -164,43 +162,10 @@ class TkinterController(object):
         # 获取策略管理器
         strategyManager = self.getStManager()
         for id in strategyIdList:
+            # 通知引擎
+            self._request.strategyQuit(id)
+            # 更新界面
             self.app.delStrategy(id)
-            #将策略管理器中的该策略也删除掉
+            # 将策略管理器中的该策略也删除掉
             strategyManager.removeStrategy(id)
 
-
-# 线程
-# ---------------------弃用-------------------------
-class UIThread(threading.Thread):
-
-    def __init__(self, target):
-        super(UIThread, self).__init__()
-        self.__flag = threading.Event()
-        self.__flag.set()
-        self.__running = threading.Event()
-        self.__running.set()
-        self.__target = target
-        self.daemon = True
-        self._state = False
-
-    def getstate(self):
-        return self._state
-
-    def run(self):
-        while self.__running.isSet():
-            self.__flag.wait()
-            self.__target()
-            time.sleep(1)
-
-    def pause(self):
-        self._state = True
-        self.__flag.clear()
-
-    def resume(self):
-        self._state = False
-        self.__flag.set()
-        self.__running.clear()
-
-    def stop(self):
-        self.__flag.set()
-        self.__running.clear()

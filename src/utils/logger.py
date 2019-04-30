@@ -1,5 +1,5 @@
 import logging
-import sys
+import sys,os
 from multiprocessing import Queue, Process
 from capi.com_types import *
 
@@ -48,6 +48,10 @@ class Logger(object):
         # 信号队列
         self.sig_queue = Queue()
         self.err_queue = Queue()
+        
+        self.logpath = r"./log/"
+        if not os.path.exists( self.logpath):
+            os.makedirs( self.logpath) 
 
         #logger config
         self.logger = logging.getLogger()
@@ -87,7 +91,7 @@ class Logger(object):
 
     def add_handler(self):
         #设置文件句柄
-        file_handler = logging.FileHandler(r"./log/equant.log", mode='w')
+        file_handler = logging.FileHandler(self.logpath + "equant.log", mode='w')
         file_handler.setLevel(logging.DEBUG)
         file_handler.setFormatter(self.formatter)
         self.logger.addHandler(file_handler)
@@ -103,16 +107,13 @@ class Logger(object):
         self.logger.addHandler(cout_handler)
 
     def debug(self, s, target=""):
-        # self._log("DEBUG", s, target)
-        pass
+        self._log("DEBUG", s, target)
 
     def info(self, s, target=""):
-        # self._log("INFO", s, target)
-        pass
+        self._log("INFO", s, target)
 
     def warn(self, s, target=""):
-        # self._log("WARN", s, target)
-        pass
+        self._log("WARN", s, target)
 
     def error(self, s, target=""):
         self._log("ERROR", s, target)

@@ -115,7 +115,6 @@ class SendRequest(object):
             self._ui2egQueue.put(event)
         except:
             print("队列已满, 现在已有消息%s条" % self._ui2egQueue.qsize())
-        print("Sending load  Completely")
 
     def reportRequest(self, strategyId):
         """报告"""
@@ -247,7 +246,7 @@ class GetEgData(object):
             EV_EG2UI_REPORT_RESPONSE:       self._onEgReportAnswer,
             EV_EG2UI_CHECK_RESULT:          self._onEgDebugInfo,
             EV_EG2ST_MONITOR_INFO:          self._onEgMonitorInfo,
-            EV_EG2UI_STRATEGY_STATUS:       self._onEgStrategtStatus,
+            EV_EG2UI_STRATEGY_STATUS:       self._onEgStrategyStatus,
             EEQU_SRVEVENT_EXCHANGE:         self._onEgExchangeInfo,
             EEQU_SRVEVENT_COMMODITY:        self._onEgCommodityInfo,
             EEQU_SRVEVENT_CONTRACT:         self._onEgContractInfo,
@@ -309,7 +308,7 @@ class GetEgData(object):
 
         self._app.setLoadState()
 
-    def _onEgStrategtStatus(self, event):
+    def _onEgStrategyStatus(self, event):
         """接收引擎推送策略状态改变信息"""
         id = event.getStrategyId()
         sStatus = event.getData()["Status"]
@@ -322,12 +321,13 @@ class GetEgData(object):
             self._stManager.add_(dataDict)
             self._stManager.updateStrategyStatus(id, sStatus)
         else:
+            # print('Status test')
             # TODO：策略状态改变后要通知监控界面
             self._stManager.updateStrategyStatus(id, sStatus)
 
             data = self._stManager.getSingleStrategy(id)
 
-            self._app.updateStatus([id], (id, ['StrategyName'], "1", "2"))
+            self._app.updateStatus([id], (id, ['StrategyName'], "1", "2", "2"))
 
     def handlerEgEvent(self):
         while True:

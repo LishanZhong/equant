@@ -23,7 +23,7 @@ class StrategyMenu(object):
     def add_event(self):
         new_menu = Menu(self.menu, tearoff=0)
         if len(self.selected_item) == 1 and self.widget.parent(self.selected_item):  # 保证只选中一个
-            self.menu.add_command(label="加载", command=self.runStrategy)
+            self.menu.add_command(label="运行", command=self.runStrategy)
         self.menu.add_cascade(label="新建", menu=new_menu)
         new_menu.add_command(label=self.language.get_text(41), command=self.newStrategy)
         new_menu.add_command(label=self.language.get_text(42), command=self.newDir)
@@ -77,7 +77,6 @@ class StrategyMenu(object):
             self._controller.saveStrategy()
             # TODO：目录树多选时path为list，新建文件的存储位置可能会有问题（总是新建到item最小的文件所在的文件夹）
             temp_path = self.get_file_path()
-            print("temp_path: ", temp_path)
             path = temp_path[0]
             if os.path.isdir(path):
                 dir_path = path
@@ -268,7 +267,7 @@ class RunMenu(object):
             if select:
                 self._strategyId.append(int(select))
 
-        print("strategyId: ", self._strategyId)
+        # print("strategyId: ", self._strategyId)
 
         if self.selected_item:
             if select:
@@ -288,7 +287,6 @@ class RunMenu(object):
                 self.add_event()
                 self.menu.post(event.x_root, event.y_root)
 
-    #TODO:这三个函数怎么写到control中呢（参数怎么传）
     def onPause(self):
         """策略暂停"""
         self._controller.pauseRequest(self._strategyId)

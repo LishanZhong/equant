@@ -156,7 +156,7 @@ class PyAPI(object):
                 'Data' : 品种编号 str
             }
         '''
-        self.logger.debug('request timebucket')
+        #self.logger.debug('request timebucket')
         if event.getData() == '':
             return
         

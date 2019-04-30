@@ -158,49 +158,32 @@ class RenameToplevel(QuantToplevel):
         self.createWidget()
 
     def createWidget(self):
-        f1, f2, f3, f4 = tk.Frame(self), tk.Frame(self), tk.Frame(self), tk.Frame(self)
+        f1, f2 = tk.Frame(self), tk.Frame(self)
         f1.pack(side=tk.TOP, fill=tk.X, pady=5)
-        f2.pack(side=tk.TOP, fill=tk.X)
-        f3.pack(side=tk.TOP, fill=tk.X, pady=5)
-        f4.pack(side=tk.BOTTOM, fill=tk.X)
+        f2.pack(side=tk.BOTTOM, fill=tk.X)
 
         if os.path.isfile(self.path):
-            # oldLabel = tk.Label(f1, text=self.language.get_text(2))
-            # oldEntry = tk.Label(f1, width=15)
-            # oldEntry["text"] = os.path.basename(self.path)
-            newLabel = tk.Label(f2, text=self.language.get_text(28))
-            self.newEntry = tk.Entry(f2, width=15)
+            newLabel = tk.Label(f1, text=self.language.get_text(28))
+            self.newEntry = tk.Entry(f1, width=15)
             self.newEntry.insert(tk.END, os.path.basename(self.path))
-            # typeLabel = tk.Label(f3, text=self.language.get_text(29))
-            # self.typeChosen = ttk.Combobox(f3, state="readonly", width=10)
-            # self.typeChosen["values"] = [".py"]
-            # self.typeChosen.current(0)
-            self.saveBtn = tk.Button(f4, text="重命名", bd=0)
-            self.cancelBtn = tk.Button(f4, text="取消", bd=0)
 
-            # oldLabel.pack(side=tk.LEFT, fill=tk.X, expand=tk.NO, padx=15)
-            # oldEntry.pack(side=tk.LEFT, fill=tk.X, expand=tk.YES, padx=15)
+            self.saveBtn = tk.Button(f2, text="确定", bd=0)
+            self.cancelBtn = tk.Button(f2, text="取消", bd=0)
+
             newLabel.pack(side=tk.LEFT, fill=tk.X, expand=tk.NO, padx=15)
             self.newEntry.pack(side=tk.LEFT, fill=tk.X, expand=tk.YES, padx=15)
-            # typeLabel.pack(side=tk.LEFT, fill=tk.X, expand=tk.NO, padx=15)
-            # self.typeChosen.pack(side=tk.LEFT, fill=tk.X, expand=tk.YES, padx=15)
 
             self.cancelBtn.pack(side=tk.RIGHT, expand=tk.NO, ipadx=5, padx=15, pady=10)
             self.saveBtn.pack(side=tk.RIGHT, expand=tk.NO, ipadx=5, padx=15, pady=10)
 
         if os.path.isdir(self.path):
-            # oldLabel = tk.Label(f1, text=self.language.get_text(30))
-            # oldEntry = tk.Label(f1, width=15)
-            # oldEntry["text"] = os.path.basename(self.path)
-            newLabel = tk.Label(f2, text=self.language.get_text(30))
-            self.newEntry = tk.Entry(f2, width=15)
+            newLabel = tk.Label(f1, text=self.language.get_text(30))
+            self.newEntry = tk.Entry(f1, width=15)
             self.newEntry.insert(tk.END, os.path.basename(self.path))
 
-            self.saveBtn = tk.Button(f4, text="重命名", bd=0)
-            self.cancelBtn = tk.Button(f4, text="取消", bd=0)
+            self.saveBtn = tk.Button(f2, text="确定", bd=0)
+            self.cancelBtn = tk.Button(f2, text="取消", bd=0)
 
-            # oldLabel.pack(side=tk.LEFT, fill=tk.X, expand=tk.NO, padx=15)
-            # oldEntry.pack(side=tk.LEFT, fill=tk.X, expand=tk.YES, padx=15)
             newLabel.pack(side=tk.LEFT, fill=tk.X, expand=tk.NO, padx=15)
             self.newEntry.pack(side=tk.LEFT, fill=tk.X, expand=tk.YES, padx=15)
 
@@ -319,8 +302,8 @@ class HistoryToplevel(QuantToplevel):
 #           "程序化策略时在同一根K线上平仓之后再触发开仓条件时不做处理"
 
 
-class LoadWin(QuantToplevel, QuantFrame):
-    """向9.5图表加载数据"""
+class RunWin(QuantToplevel, QuantFrame):
+    """运行按钮点击弹出窗口"""
     # 背景色
     bgColor = rgb_to_hex(245, 245, 245)
     bgColorW = "white"
@@ -360,7 +343,7 @@ class LoadWin(QuantToplevel, QuantFrame):
             'Sample': {
                     'KLineType': 'D',
                     'KLineSlice': 1
-        },
+            },
 
         'RunMode': {
             'SendOrder': '1',
@@ -1086,6 +1069,7 @@ class LoadWin(QuantToplevel, QuantFrame):
         hisFrame = tk.Frame(sampFrame, bg=rgb_to_hex(255, 255, 255), padx=5)
         hisFrame.pack(side=tk.TOP, fill=tk.X, pady=5)
 
+        self.sampleVar.set(2)
         # 所有K线
         allKRadio = tk.Radiobutton(allKFrame, text="所有K线", bg=rgb_to_hex(255, 255, 255),
                                    value=0, anchor=tk.W, variable=self.sampleVar)  # self.isAllK
@@ -1115,6 +1099,7 @@ class LoadWin(QuantToplevel, QuantFrame):
         self.qtyRadio.pack(side=tk.LEFT, padx=5)
         self.qtyEntry = tk.Entry(fixFrame, relief=tk.RIDGE, width=8, textvariable=self.fixQty,
                                  validate="key", validatecommand=(self.testContent, "%P"))
+        self.qtyEntry.insert(tk.END, 2000)
         self.qtyEntry.pack(side=tk.LEFT, fill=tk.X, padx=1)
         self.qtyEntry.bind("<Button-1>", self.qtyEnterEvent)
         tk.Label(fixFrame, text="根", bg=rgb_to_hex(255, 255, 255),

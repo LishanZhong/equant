@@ -1223,7 +1223,6 @@ class StrategyHisQuote(object):
         return self._sampleDict['KLineSlice']
         
     def _getKLineCount(self):
-        #不使用历史K线，也要订阅1根
         if not self._useSample:
             return 1
 
@@ -1299,6 +1298,11 @@ class StrategyHisQuote(object):
         # req by count
         if not self._reqByDate:
             self._updateHisRspData(event)
+            if self.isHisQuoteRspEnd(event):
+                self._reIndexHisRspData()
+                self._borderIndex = len(self._metaData[self._contractNo]["KLineData"])
+                # print("now borderIndex is ", self._borderIndex)
+                self._hisLength = len(self._metaData[self._contractNo]["KLineData"])
             return
 
         # req by date
@@ -1416,8 +1420,11 @@ class StrategyHisQuote(object):
             data["IsKLineStable"] = False
             # 没有数据，索引取回测数据的最后一条数据的索引，没有数据从1开始
             if len(rfdataList) == 0:
-                lastKLine = self._metaData[self._contractNo]['KLineData'][-1]
-                data["KLineIndex"] = self._borderIndex if lastKLine["DateTimeStamp"] == data["DateTimeStamp"] else self._borderIndex+1
+                if len(self._metaData[self._contractNo]['KLineData']) == 0:
+                    data["KLineIndex"] = self._borderIndex+1
+                else:
+                    lastKLine = self._metaData[self._contractNo]['KLineData'][-1]
+                    data["KLineIndex"] = self._borderIndex if lastKLine["DateTimeStamp"] == data["DateTimeStamp"] else self._borderIndex+1
                 # print("len of rfdatalist = ", len(rfdataList))
                 # print(self._metaData[self._contractNo]['KLineData'][-1]["DateTimeStamp"])
                 # print(dataList[0]["DateTimeStamp"])
@@ -1624,6 +1631,9 @@ class StrategyHisQuote(object):
         self._sendFlushEvent()
 
     def sendAllHisKLine(self, data):
+        if len(data) == 0:
+            return
+        # print("len = ", len(data))
         event = Event({
             "EventCode": EV_ST2EG_NOTICE_KLINEDATA,
             "StrategyId": self._strategy.getStrategyId(),
@@ -1634,9 +1644,8 @@ class StrategyHisQuote(object):
             }
         })
         self._strategy.sendEvent2Engine(event)
-        
-    def runReportRealTime(self, context, handle_data, event):
 
+    def runReportRealTime(self, context, handle_data, event):
         '''发送回测阶段来的数据'''
         # 更新当前bar数据
         data = event.getData()

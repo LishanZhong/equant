@@ -124,7 +124,7 @@ class QuantMonitor(object):
         return self.statusDict[key]
 
     def updateSingleExecute(self, dataDict):
-        #print("dataDict: ", dataDict)
+        # print("dataDict: ", dataDict)
         status = self._getStrategyStatus(dataDict["StrategyState"])
         runType = '是' if dataDict['Config']['RunMode']['Actual']['SendOrder2Actual'] else "否"
 
