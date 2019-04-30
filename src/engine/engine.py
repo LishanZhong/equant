@@ -738,7 +738,7 @@ class StrategyEngine(object):
     def _onStrategyPause(self, event):
         #print("======================")
         #strategyId = 1
-        self._sendEvent2Strategy(event.getStartegyId(), event)
+        self._sendEvent2Strategy(event.getStrategyId(), event)
 
     # 恢复当前策略
     def _onStrategyResume(self, event):
