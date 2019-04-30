@@ -8,12 +8,12 @@
 
 #### 安装教程
 1. 安装极星9.5客户端  
-    a. 单击[极星9.5客户端](https://epolestar95-1255628687.cos.ap-beijing.myqcloud.com/epolestar_0429.zip)，下载极星9.5客户端
-    b. 极星9.5客户端安装包移动到任意目录，例如:D\equant，并解压
+    a. 单击[极星9.5客户端](https://epolestar95-1255628687.cos.ap-beijing.myqcloud.com/epolestar_0429.zip)，下载极星9.5客户端  
+    b. 极星9.5客户端安装包移动到任意目录，例如:D\equant，并解压  
 
 2. 安装Anaconda3  
-    a. 打开[Anaconda官网](https://www.anaconda.com)下载最新python3.7 Anaconda3版本  
-    b. 双击安装文件，点击"Next",出现"Add Anaconda3 to the system PATH environment variable"时勾选,其他点击"Next"
+    a. 打开[Anaconda官网](https://www.anaconda.com)下载最新python3.7 Anaconda3版本   
+    b. 双击安装文件，点击"Next",出现"Add Anaconda3 to the system PATH environment variable"时勾选,其他点击"Next"  
     
 3. 安装python依赖包 
     a. 安装talib库  
