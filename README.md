@@ -18,7 +18,7 @@
 3. 安装python依赖包 
     a. 安装talib库  
         a1. 单击[talib](https://download.lfd.uci.edu/pythonlibs/q5gtlas7/TA_Lib-0.4.17-cp37-cp37m-win_amd64.whl)下载  
-        a2. Win+R运行cmd，进入TA_Lib的下载目录，执行pip install TA_Lib-0.4.17-cp36-cp36m-win_amd64.whl  
+        a2. Win+R运行cmd，进入TA_Lib的下载目录，执行pip install TA_Lib-0.4.17-cp37-cp37m-win_amd64.whl  
     
 4. 安装极星量化     
     a. 在gitee或者github，极星量化项目，单击Clone or download下载极星量化终端  
