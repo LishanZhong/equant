@@ -29,7 +29,8 @@ class StartegyManager(object):
         self._strategyDict = {}
         self._strategyProcess = {}
 
-    def run(self, strategy):
+    @staticmethod
+    def run(strategy):
         strategy.run()
         
     def stop(self, strategyId=0, mode='S'):
