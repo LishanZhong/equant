@@ -297,6 +297,5 @@ class QuantMonitor(object):
     def updateStatus(self, strategyId, dataDict):
         """更新策略ID对应的策略状态"""
         values = self._formatMonitorInfo(dataDict)
-        print("values: ", values)
         self.executeListTree.item(strategyId, values=values)
         # self.executeListTree.update()

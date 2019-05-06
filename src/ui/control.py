@@ -7,7 +7,6 @@ from .model import QuantModel, SendRequest
 from .view import QuantApplication
 from .language import *
 
-from utils.utils import save
 
 
 class TkinterController(object):
@@ -83,14 +82,12 @@ class TkinterController(object):
 
         return
 
-    def generateReportReq(self, strategyId):
+    def generateReportReq(self, strategyIdList):
         """发送生成报告请求"""
         # TODO：生成报告，如果RepData为空，则显示最新日期的历史报告，
         # TODO：不为空，代表获取到的数据为传过来的数据
-        # strategyId = self.model.getCurStId()
-        # if strategyId:
-        #     self._request.reportRequest(strategyId)
-        self._request.reportRequest(strategyId)
+        for id in strategyIdList:
+            self._request.reportRequest(id)
 
     def newStrategy(self, path):
         """右键新建策略"""
@@ -164,8 +161,14 @@ class TkinterController(object):
         for id in strategyIdList:
             # 通知引擎
             self._request.strategyQuit(id)
+            # TODO：删除策略需要接到通知之后再进行删除
             # 更新界面
             self.app.delStrategy(id)
             # 将策略管理器中的该策略也删除掉
             strategyManager.removeStrategy(id)
 
+    def signalDisplay(self, strategyIdList):
+        # 查看策略的信号及指标图
+        if len(strategyIdList) >= 1:
+            id = strategyIdList[0]
+            self._request.strategySignal(id)

@@ -54,7 +54,7 @@ class Logger(object):
 
         #logger config
         self.logger = logging.getLogger()
-        self.logger.setLevel(logging.CRITICAL)
+        self.logger.setLevel(logging.DEBUG)
         self.formatter = logging.Formatter("[%(levelname)7s][%(asctime)-15s]: %(message)s")
 
         self.level_dict = {"DEBUG":logging.DEBUG, "INFO":logging.INFO, "WARN":logging.WARN, "ERROR":logging.ERROR}

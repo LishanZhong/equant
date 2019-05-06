@@ -23,7 +23,8 @@ class StrategyMenu(object):
     def add_event(self):
         new_menu = Menu(self.menu, tearoff=0)
         if len(self.selected_item) == 1 and self.widget.parent(self.selected_item):  # 保证只选中一个
-            self.menu.add_command(label="运行", command=self.runStrategy)
+            # self.menu.add_command(label="运行", command=self.runStrategy)
+            pass
         self.menu.add_cascade(label="新建", menu=new_menu)
         new_menu.add_command(label=self.language.get_text(41), command=self.newStrategy)
         new_menu.add_command(label=self.language.get_text(42), command=self.newDir)
@@ -37,7 +38,10 @@ class StrategyMenu(object):
         self.selected_item = event.widget.selection()
 
         # 记录右键所选择的策略路径
-        self._rightClickPath = self.widget.item(select)["values"][0]
+        if select:  # 存在选择的策略
+            self._rightClickPath = self.widget.item(select)["values"][0]
+            # 右键加载策略时将右键所选的策略路径作为当前加载路径
+            self._controller.setEditorTextCode(self._rightClickPath)
 
         if self.selected_item:
             if select:
@@ -154,29 +158,42 @@ class StrategyMenu(object):
         renameTop = RenameToplevel(path, self._controller.top)
 
         def enter():
-            # 新建策略前先保存当前选中的策略
             self._controller.saveStrategy()
+            newPath = os.path.join(os.path.dirname(path), renameTop.newEntry.get())
 
             if not os.path.exists(path):
-                messagebox.showinfo(self.language.get_text(8), self.language.get_text(31))
+                messagebox.showinfo("提示", "本地文件不存在或已删除")
                 return
             else:
-                if not os.path.exists(
-                        os.path.join(os.path.dirname(path), renameTop.newEntry.get() + renameTop.typeChosen.get())):
-                    fullPath = os.path.join(os.path.dirname(path), renameTop.newEntry.get()
-                                             + renameTop.typeChosen.get())
-                    self.widget.item(self.selected_item, values=[fullPath, "!@#$%^&*"])
-                    os.rename(path, fullPath)
+                if os.path.isfile(path):
+                    # print(os.path.splitext(renameTop.newEntry.get()))
+                    if os.path.splitext(renameTop.newEntry.get())[0] == "" \
+                            or os.path.splitext(renameTop.newEntry.get())[0] == ".py":
+                        messagebox.showinfo("提示", "策略文件后缀名不能为空")
+                        return
 
-                    if os.path.isfile(fullPath):
-                        text = renameTop.newEntry.get() + renameTop.typeChosen.get()
+                    if os.path.splitext(renameTop.newEntry.get())[1] != ".py":
+                        messagebox.showinfo("提示", "策略文件后缀名为.py")
+                        return
+
+                if os.path.isdir(path):
+                    if renameTop.newEntry.get() == "":
+                        messagebox.showinfo("提示", "文件名不能为空")
+                        return
+
+                if not os.path.exists(newPath):
+                    self.widget.item(self.selected_item, values=[newPath, "!@#$%^&*"])
+                    os.rename(path, newPath)
+
+                    if os.path.isfile(newPath):
+                        text = renameTop.newEntry.get()
                         self.widget.item(self.selected_item, text=text)
-                    if os.path.isdir(fullPath):
+                    if os.path.isdir(newPath):
                         text = renameTop.newEntry.get()
                         self.widget.tag_configure(self.selected_item, text=text)
                     self.widget.update()
-                if os.path.exists(os.path.join(os.path.dirname(path), renameTop.newEntry.get())):
-                    messagebox.showinfo(self.language.get_text(8), self.language.get_text(32))
+                else:
+                    messagebox.showinfo("提示", self.language.get_text(32))
             renameTop.destroy()
 
         def cancel():
@@ -248,12 +265,12 @@ class RunMenu(object):
         self._strategyId = []   # 策略Id列表，弹出右键菜单时赋值
 
     def add_event(self):
-        self.menu.add_command(label="暂停", command=self.onPause)
-        self.menu.add_command(label="停止", command=self.onQuit)
+        # self.menu.add_command(label="暂停", command=self.onPause)
         self.menu.add_command(label="启动", command=self.onResume)
+        self.menu.add_command(label="停止", command=self.onQuit)
         self.menu.add_command(label="删除", command=self.onDelete)
         self.menu.add_command(label="报告", command=self.onReport)
-        # self.menu.add_command(label="信号图", command=self.onSwitch)
+        self.menu.add_command(label="切换策略", command=self.onSignal)
 
     def popupmenu(self, event):
         select = self.widget.identify_row(event.y)
@@ -306,5 +323,9 @@ class RunMenu(object):
 
     def onReport(self):
         """展示报告"""
-        for id in self._strategyId:
-            self._controller.generateReportReq(id)
+        self._controller.generateReportReq(self._strategyId)
+
+    def onSignal(self):
+        """查看信号图"""
+        # 当查看信号图时，如果策略选择多个，则只显示第一个
+        self._controller.signalDisplay(self._strategyId)

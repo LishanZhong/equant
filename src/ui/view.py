@@ -146,11 +146,23 @@ class QuantApplication(object):
         self.control.sendExitRequest()
         self.root.destroy()
 
-    def reportDisplay(self, data):
-        """显示回测报告"""
-        from utils.utils import save
+    def reportDisplay(self, data, id):
+        """
+        显示回测报告
+        :param data: 回测报告数据
+        :param id:  对应策略Id
+        :return:
+        """
+        stManager = self.control.getStManager()
+        strategyPath = self.control.getEditorText()["path"]
 
-        save(data)
+        stName = os.path.basename(strategyPath)
+
+        stData = stManager.getSingleStrategy(id)
+        runMode = stData["Config"]["RunMode"]["Actual"]["SendOrder2Actual"]
+        # 保存报告数据
+        save(data, runMode, stName)
+
         parent = HistoryToplevel(self, self.root)
         parent.set_config()
         ReportView(data, parent)

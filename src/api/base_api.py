@@ -1519,6 +1519,310 @@ class BaseApi(object):
         return self._dataModel.getSymbolType(contNo)
         
     #////////////////////////////策略性能/////////////////
+    def Available(self):
+        '''
+        【说明】
+              返回策略当前可用虚拟资金。
+
+        【语法】
+              float Available()
+
+        【参数】
+              无
+
+        【备注】
+              无
+
+        【示例】
+              无
+        '''
+        return self._dataModel.getAvailable()
+
+    def FloatProfit(self, contNo):
+        '''
+        【说明】
+              返回某个合约或者所有合约的浮动盈亏。
+
+        【语法】
+              float FloatProfit(string contNo)
+
+        【参数】
+              contNo 合约编号，为空时返回所有合约的浮动盈亏。
+
+        【备注】
+              无
+
+        【示例】
+              无
+        '''
+        return self._dataModel.getFloatProfit(contNo)
+
+    def GrossLoss(self):
+        '''
+        【说明】
+              返回累计总亏损。
+
+        【语法】
+              float GrossLoss()
+
+        【参数】
+              无
+
+        【备注】
+              无
+
+        【示例】
+              无
+        '''
+        return self._dataModel.getGrossLoss()
+
+    def GrossProfit(self):
+        '''
+        【说明】
+              返回累计总利润。
+
+        【语法】
+              float GrossProfit()
+
+        【参数】
+              无
+
+        【备注】
+              无
+
+        【示例】
+              无
+        '''
+        return self._dataModel.getGrossProfit()
+
+    def Margin(self, contNo):
+        '''
+        【说明】
+              返回某个合约或者所有合约的持仓保证金。
+
+        【语法】
+              float Margin(string contNo)
+
+        【参数】
+              contNo 合约编号，为空时返回所有合约的浮动盈亏。
+
+        【备注】
+              无
+
+        【示例】
+              无
+        '''
+        return self._dataModel.getMargin(contNo)
+
+    def NetProfit(self):
+        '''
+        【说明】
+              返回该账户下的平仓盈亏。
+
+        【语法】
+              float NetProfit()
+
+        【参数】
+              无
+
+        【备注】
+              无
+
+        【示例】
+              无
+        '''
+        return self._dataModel.getNetProfit()
+
+    def NumEvenTrades(self):
+        '''
+        【说明】
+              返回该账户下保本交易的总手数。
+
+        【语法】
+              int NumEvenTrades()
+
+        【参数】
+              无
+
+        【备注】
+              无
+
+        【示例】
+              无
+        '''
+        return self._dataModel.getNumEvenTrades()
+
+    def NumLosTrades(self):
+        '''
+        【说明】
+              返回该账户下亏损交易的总手数。
+
+        【语法】
+              int NumLosTrades()
+
+        【参数】
+              无
+
+        【备注】
+              无
+
+        【示例】
+              无
+        '''
+        return self._dataModel.getNumLosTrades()
+
+    def NumWinTrades(self):
+        '''
+        【说明】
+              返回该账户下盈利交易的总手数。
+
+        【语法】
+              int NumWinTrades()
+
+        【参数】
+              无
+
+        【备注】
+              无
+
+        【示例】
+              无
+        '''
+        return self._dataModel.getNumWinTrades()
+
+    def NumAllTimes(self):
+        '''
+        【说明】
+              返回该账户的开仓次数。
+
+        【语法】
+              int NumAllTimes()
+
+        【参数】
+              无
+
+        【备注】
+              无
+
+        【示例】
+              无
+        '''
+        return self._dataModel.getNumAllTimes()
+
+    def NumWinTimes(self):
+        '''
+        【说明】
+              返回该账户的盈利次数。
+
+        【语法】
+              int NumWinTimes()
+
+        【参数】
+              无
+
+        【备注】
+              无
+
+        【示例】
+              无
+        '''
+        return self._dataModel.getNumWinTimes()
+
+    def NumLoseTimes(self):
+        '''
+        【说明】
+              返回该账户的亏损次数。
+
+        【语法】
+              int NumLoseTimes()
+
+        【参数】
+              无
+
+        【备注】
+              无
+
+        【示例】
+              无
+        '''
+        return self._dataModel.getNumLoseTimes()
+
+    def NumEventTimes(self):
+        '''
+        【说明】
+              返回该账户的保本次数。
+
+        【语法】
+              int NumEventTimes()
+
+        【参数】
+              无
+
+        【备注】
+              无
+
+        【示例】
+              无
+        '''
+        return self._dataModel.getNumEventTimes()
+
+    def PercentProfit(self):
+        '''
+        【说明】
+              返回该账户的盈利成功率。
+
+        【语法】
+              float PercentProfit()
+
+        【参数】
+              无
+
+        【备注】
+              无
+
+        【示例】
+              无
+        '''
+        return self._dataModel.getPercentProfit()
+
+    def TradeCost(self):
+        '''
+        【说明】
+              返回该账户交易产生的手续费。
+
+        【语法】
+              float TradeCost()
+
+        【参数】
+              无
+
+        【备注】
+              无
+
+        【示例】
+              无
+        '''
+        return self._dataModel.getTradeCost()
+
+    def TotalTrades(self):
+        '''
+        【说明】
+              返回该账户的交易总开仓手数。
+
+        【语法】
+              int TotalTrades()
+
+        【参数】
+              无
+
+        【备注】
+              无
+
+        【示例】
+              无
+        '''
+        return self._dataModel.getTotalTrades()
+
 
     #////////////////////////////账户函数/////////////////
     def A_AccountID(self):
@@ -2451,6 +2755,33 @@ class BaseApi(object):
         '''
         return self._dataModel.setBarInterval(barType, barInterval)
 
+    def SetSample(self, sampleType, sampleValue):
+        '''
+        【说明】
+              设置策略历史回测的样本数量，默认为使用2000根K线进行回测。
+
+        【语法】
+              int SetSample(char sampleType, int|string sampleValue)
+
+        【参数】
+              sampleType 历史回测起始点类型
+                A : 使用所有K线
+                D : 指定日期开始触发
+                C : 使用固定根数
+                N : 不执行历史K线
+              sampleValue 可选，设置历史回测起始点使用的数值
+                当sampleType为A或N时，sampleValue的值不设置；
+                当sampleType为D时，sampleValue为形如'20190430'的string型触发指定日期；
+                当sampleType为C时，sampleValue为int型历史回测使用的K线根数。
+
+        【备注】
+              返回整型，0成功，-1失败
+
+        【示例】
+              SetSample(sampleType, sampleValue)
+        '''
+        return self._dataModel.setSample(sampleType, sampleValue)
+
     def SetAllKTrue(self):
         '''
         【说明】
@@ -2594,6 +2925,88 @@ class BaseApi(object):
         '''
         return self._dataModel.setTradeMode(inActual, sendOrderType, useSample, useReal)
 
+    def SetTradeDirection(self, tradeDirection):
+        '''
+        【说明】
+             设置交易方向
+
+        【语法】
+              int SetTradeDirection(int tradeDirection)
+
+        【参数】
+              tradeDirection 设置交易方向
+              0 : 双向交易
+              1 : 仅多头
+              2 : 仅空头
+
+        【备注】
+              返回整型，0成功，-1失败
+
+        【示例】
+              SetTradeDirection(0)    # 双向交易
+        '''
+        return self._dataModel.setTradeDirection(tradeDirection)
+
+    def SetMinTradeQuantity(self, tradeQty):
+        '''
+        【说明】
+             设置最小下单量，单位为手，默认值为1手。
+
+        【语法】
+              int SetMinTradeQuantity(int tradeQty)
+
+        【参数】
+              tradeQty 最小下单量，不超过1000
+
+        【备注】
+              返回整型，0成功，-1失败
+
+        【示例】
+              无
+        '''
+        return self._dataModel.setMinTradeQuantity(tradeQty)
+
+    def SetHedge(self, hedge):
+        '''
+        【说明】
+             设置投保标志
+
+        【语法】
+              int SetHedge(char hedge)
+
+        【参数】
+              hedge 投保标志
+              T : 投机
+              B : 套保
+              S : 套利
+              M : 做市
+
+        【备注】
+              返回整型，0成功，-1失败
+
+        【示例】
+              SetHedge('T') # 设置投保标志为 投机
+        '''
+        return self._dataModel.setHedge(hedge)
+
+    def SetSlippage(self, slippage):
+        '''
+        【说明】
+             设置滑点损耗
+
+        【语法】
+              int SetSlippage(float slippage)
+
+        【参数】
+              slippage 滑点损耗
+
+        【备注】
+              返回整型，0成功，-1失败
+
+        【示例】
+              无
+        '''
+        return self._dataModel.setSlippage(slippage)
 
 baseApi = BaseApi()
 
@@ -2759,7 +3172,56 @@ def Q_UpperLimit(symbol=''):
 def QuoteDataExist(symbol=''):
     return baseApi.QuoteDataExist(symbol)
 
-#账户函数
+# 策略性能
+def Available():
+    return baseApi.Available()
+
+def FloatProfit(contNo=''):
+    return baseApi.FloatProfit(contNo)
+
+def GrossLoss():
+    return baseApi.GrossLoss()
+
+def GrossProfit():
+    return baseApi.GrossProfit()
+
+def Margin(contNo=''):
+    return baseApi.Margin(contNo)
+
+def NetProfit():
+    return baseApi.NetProfit()
+
+def NumEvenTrades():
+    return baseApi.NumEvenTrades()
+
+def NumLosTrades():
+    return baseApi.NumLosTrades()
+
+def NumWinTrades():
+    return baseApi.NumWinTrades()
+
+def NumAllTimes():
+    return baseApi.NumAllTimes()
+
+def NumWinTimes():
+    return baseApi.NumWinTimes()
+
+def NumLoseTimes():
+    return baseApi.NumLoseTimes()
+
+def NumEventTimes():
+    return baseApi.NumEventTimes()
+
+def PercentProfit():
+    return baseApi.PercentProfit()
+
+def TradeCost():
+    return baseApi.TradeCost()
+
+def TotalTrades():
+    return baseApi.TotalTrades()
+
+# 账户函数
 def A_AccountID():
     return baseApi.A_AccountID()
 
@@ -2903,16 +3365,19 @@ def SetUserNo(userNo=''):
 def SetBarInterval(barType, barInterval):
     return baseApi.SetBarInterval(barType, barInterval)
 
+def SetSample(sampleType='C', sampleValue=2000):
+    return baseApi.SetSample(sampleType, sampleValue)
+
+################### Begin ####################
 def SetAllKTrue():
     return baseApi.SetAllKTrue()
 
-# def SetBarPeriod(beginDate, endDate=0):
-#     return baseApi.SetBarPeriod(beginDate, endDate)
 def SetBarPeriod(beginDate):
     return baseApi.SetBarPeriod(beginDate)
     
 def SetBarCount(count):
     return baseApi.SetBarCount(count)
+################### End ####################
 
 def SetInitCapital(capital=''):
     return baseApi.SetInitCapital(capital)
@@ -2926,6 +3391,17 @@ def SetTradeFee(type, reteFee, fixFee):
 def SetTradeMode(inActual, sendOrderType, useSample, useReal):
     return baseApi.SetTradeMode(inActual, sendOrderType, useSample, useReal)
 
+def SetTradeDirection(tradeDirection):
+    return baseApi.SetTradeDirection(tradeDirection)
+
+def SetMinTradeQuantity(tradeQty=1):
+    return baseApi.SetMinTradeQuantity(tradeQty)
+
+def SetHedge(hedge):
+    return baseApi.SetHedge(hedge)
+
+def SetSlippage(slippage):
+    return baseApi.SetSlippage(slippage)
 
 # 属性函数
 def BarInterval():

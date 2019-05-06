@@ -159,7 +159,7 @@ class RenameToplevel(QuantToplevel):
 
     def createWidget(self):
         f1, f2 = tk.Frame(self), tk.Frame(self)
-        f1.pack(side=tk.TOP, fill=tk.X, pady=5)
+        f1.pack(side=tk.TOP, fill=tk.X, pady=15)
         f2.pack(side=tk.BOTTOM, fill=tk.X)
 
         if os.path.isfile(self.path):
@@ -550,7 +550,7 @@ class RunWin(QuantToplevel, QuantFrame):
                                  bd=0, highlightthickness=1, command=self.toBaseFrame)
         self.fundBtn = tk.Button(nbFrame, text="资金设置", relief=tk.FLAT, padx=14, pady=1.5, bg=self.fColor,
                                  bd=0, highlightthickness=1, command=self.toFundFrame)
-        self.runBtn = tk.Button(nbFrame, text="触发方式", relief=tk.FLAT, padx=14, pady=1.5, bg=self.rColor,
+        self.runBtn = tk.Button(nbFrame, text="运行设置", relief=tk.FLAT, padx=14, pady=1.5, bg=self.rColor,
                                 bd=0, highlightthickness=1, command=self.toRunFrame)
         self.sampleBtn = tk.Button(nbFrame, text="样本设置", relief=tk.FLAT, padx=14, pady=1.5, bg=self.sColor,
                                    bd=0, highlightthickness=1, command=self.toSampFrame)
@@ -683,15 +683,16 @@ class RunWin(QuantToplevel, QuantFrame):
         self.setUser(frame)
         self.setKLineType(frame)
         self.setKLineSlice(frame)
-        self.setRunMode(frame)
 
     def createSample(self, frame):
         self.setSample(frame)
-        self.setSendOrderMode(frame)
+        self.setSendOrderLimit(frame)
         #
 
     def createRun(self, frame):
         self.setTrigger(frame)
+        self.SendOrderMode(frame)
+        self.setRunMode(frame)
 
 
     # 资金设置
@@ -1125,32 +1126,32 @@ class RunWin(QuantToplevel, QuantFrame):
         """从qtyEntry获取焦点"""
         radioBtn.focus_set()
 
-    def setSendOrderMode(self, frame):
-        # sendModeFrame = tk.Frame(frame, bg=rgb_to_hex(255, 255, 255), padx=5)
-        # sendModeFrame.pack(side=tk.TOP, fill=tk.X)
-        sendModeFrame = tk.LabelFrame(frame, text="发单时机", bg=rgb_to_hex(255, 255, 255), padx=5)
-        sendModeFrame.pack(side=tk.TOP, fill=tk.X, anchor=tk.W, padx=15, pady=5)
+    def SendOrderMode(self, frame):
+        modeFrame = tk.Frame(frame, bg=rgb_to_hex(255, 255, 255))
+        modeFrame.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
 
-        modeFrame = tk.Frame(sendModeFrame, bg=rgb_to_hex(255, 255, 255), padx=5)
-        modeFrame.pack(side=tk.TOP, fill=tk.X, pady=5)
-        setFrame = tk.Frame(sendModeFrame, bg=rgb_to_hex(255, 255, 255), padx=5)
-        setFrame.pack(side=tk.TOP, fill=tk.X, pady=5)
-
+        tk.Label(modeFrame, text="发单时机: ", bg=rgb_to_hex(255, 255, 255),
+                 anchor=tk.W, width=10).pack(side=tk.LEFT, expand=tk.NO, padx=5)
         # 实时发单
         self.RealTimeRadio = tk.Radiobutton(modeFrame, text="实时发单", bg=rgb_to_hex(255, 255, 255),
                                             anchor=tk.W, value=0, variable=self.sendOrderMode,
                                             command=self.sendModeEvent)
-        self.RealTimeRadio.pack(side=tk.LEFT, padx=5, pady=10)
+        self.RealTimeRadio.pack(side=tk.LEFT, padx=10, pady=10)
         # K线稳定后发单
         self.steadyRadio = tk.Radiobutton(modeFrame, text="K线稳定后发单", bg=rgb_to_hex(255, 255, 255),
                                           anchor=tk.W, value=1, variable=self.sendOrderMode,
                                           command=self.sendModeEvent)
-        self.steadyRadio.pack(side=tk.LEFT, padx=170, pady=10)
+        self.steadyRadio.pack(side=tk.LEFT, padx=50, pady=10)
 
-        self.setOpenTimes(setFrame)
-        self.setContinueOpenTimes(setFrame)
-        self.setCanClose(setFrame)
-        self.setCanOpen(setFrame)
+
+    def setSendOrderLimit(self, frame):
+        sendModeFrame = tk.LabelFrame(frame, text="发单设置", bg=rgb_to_hex(255, 255, 255), padx=5)
+        sendModeFrame.pack(side=tk.TOP, fill=tk.X, anchor=tk.W, padx=15, pady=15)
+
+        self.setOpenTimes(sendModeFrame)
+        self.setContinueOpenTimes(sendModeFrame)
+        self.setCanClose(sendModeFrame)
+        self.setCanOpen(sendModeFrame)
         # self.setHelp(setFrame)
         # self.bindEvent()
 
@@ -1173,15 +1174,16 @@ class RunWin(QuantToplevel, QuantFrame):
                 label.config(fg='grey')
 
     def setRunMode(self, frame):
-        """是否实盘运行、连续运行"""
+        """是否实盘运行"""
         runModeFrame = tk.Frame(frame, bg=rgb_to_hex(255, 255, 255))
-        runModeFrame.pack(side=tk.TOP, fill=tk.X, padx=15, pady=5)
-        # tk.Label(runModeFrame, text="运行模式: ", bg=rgb_to_hex(255, 255, 255),
-        #          anchor=tk.W, width=10).pack(side=tk.LEFT, expand=tk.NO, padx=1)
+        runModeFrame.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
+        tk.Label(runModeFrame, text="运行模式: ", bg=rgb_to_hex(255, 255, 255),
+                 anchor=tk.W, width=10).pack(side=tk.LEFT, expand=tk.NO, padx=5)
+
         # 实盘运行
         self.modeCheck = tk.Checkbutton(runModeFrame, text="实盘运行", bg=rgb_to_hex(255, 255, 255),
                                         anchor=tk.W, variable=self.isActual)
-        self.modeCheck.pack(side=tk.LEFT, padx=5)
+        self.modeCheck.pack(side=tk.LEFT, padx=10)
         # 是否连续运行
         # self.continueCheck = tk.Checkbutton(runModeFrame, text="连续运行", bg=rgb_to_hex(255, 255, 255),
         #                                     anchor=tk.W, variable=self.isContinue)
@@ -1499,12 +1501,12 @@ class RunWin(QuantToplevel, QuantFrame):
             self.config["Sample"]["BeginTime"] = beginDate
             self.config["RunMode"]["Simulate"]["UseSample"] = True
         elif sampleVar == 2:
-            if not fixQty:
+            if not fixQty or int(fixQty) == 0:
                 messagebox.showinfo("极星量化", "K线数量大于零且不能为空")
                 return
-            elif int(fixQty) == 0:
-                messagebox.showinfo("极星量化", "K线数量大于零且不能为空")
-                return
+            # elif int(fixQty) == 0:
+            #     messagebox.showinfo("极星量化", "K线数量大于零且不能为空")
+            #     return
             else:
                 self.config["Sample"]["KLineCount"] = int(fixQty)
                 self.config["RunMode"]["Simulate"]["UseSample"] = True
@@ -1522,17 +1524,17 @@ class RunWin(QuantToplevel, QuantFrame):
         self.config["RunMode"]["Actual"]["SendOrder2Actual"] = False if isActual == 0 else True
 
         self.config["Money"]["UserNo"] = user
-        self.config["Money"]["InitFunds"] = initFund
+        self.config["Money"]["InitFunds"] = float(initFund)
         self.config["Money"]["MinQty"] = int(minQty)   # 最小下单量
         if defaultType == "按固定合约数":
             self.config["Money"]["OrderQty"]["Type"] = "1"
             self.config["Money"]["OrderQty"]["Count"] = int(defaultQty)
         elif defaultType == "按固定资金":
             self.config["Money"]["OrderQty"]["Type"] = "2"
-            self.config["Money"]["OrderQty"]["Count"] = defaultQty
+            self.config["Money"]["OrderQty"]["Count"] = float(defaultQty)
         elif defaultType == "按资金比例":
             self.config["Money"]["OrderQty"]["Type"] = "3"
-            self.config["Money"]["OrderQty"]["Count"] = defaultQty / 100
+            self.config["Money"]["OrderQty"]["Count"] = float(defaultQty) / 100
         else:
             raise Exception("默认下单量类型异常")
         if hedge == "投机":
@@ -1547,20 +1549,20 @@ class RunWin(QuantToplevel, QuantFrame):
             raise Exception("投保标志异常")
         #TODO: margin类型没有设置！！！！！
         self.config["Money"]["Margin"]["Type"] = "R"
-        self.config["Money"]["Margin"]["Value"] = int(margin) / 100
+        self.config["Money"]["Margin"]["Value"] = float(margin) / 100
 
         if openType == "比例":
             self.config["Money"]["OpenFee"]["Type"] = 'R'
-            self.config["Money"]["OpenFee"]["Value"] = int(openFee)/100
+            self.config["Money"]["OpenFee"]["Value"] = float(openFee)/100
         else:
             self.config["Money"]["OpenFee"]["Type"] = 'F'
-            self.config["Money"]["OpenFee"]["Value"] = int(openFee)
+            self.config["Money"]["OpenFee"]["Value"] = float(openFee)
         if closeType == "比例":
             self.config["Money"]["CloseFee"]["Type"] = 'R'
-            self.config["Money"]["CloseFee"]["Value"] = int(closeFee)/100
+            self.config["Money"]["CloseFee"]["Value"] = float(closeFee)/100
         else:
             self.config["Money"]["CloseFee"]["Type"] = 'F'
-            self.config["Money"]["CloseFee"]["Value"] = int(closeFee)
+            self.config["Money"]["CloseFee"]["Value"] = float(closeFee)
         # TODO：平今手续费没有设置
         self.config["Money"]["CloseTodayFee"]["Type"] = "F"
         self.config["Money"]["CloseTodayFee"]["Type"] = 0
@@ -1572,7 +1574,7 @@ class RunWin(QuantToplevel, QuantFrame):
         self.config["Limit"]["CloseAllowOpen"] = canOpen
 
         # other
-        self.config["Other"]["Slippage"] = int(slippage)
+        self.config["Other"]["Slippage"] = float(slippage)
         if tradeDirection == "双向交易":
             self.config["Other"]["TradeDirection"] = 0
         elif tradeDirection == "仅多头":
@@ -1611,7 +1613,7 @@ class RunWin(QuantToplevel, QuantFrame):
 class SelectContractWin(QuantToplevel, QuantFrame):
 
     commodityType = {"P": '现货', 'F': '期货', 'O': '期权', 'S': '跨期', 'M': '跨品种', 'Z': '指数'}
-    exchangeList = ["CFFEX", "CME", "DCE", "SGE", "SHFE", "ZCE", "INE", "NYMEX"]
+    exchangeList = ["CFFEX", "CME", "DCE", "SGE", "SHFE", "ZCE", "INE", "NYMEX", "SSE", "SZSE"]
 
     def __init__(self, exchange, commodity, contract, master):
         super().__init__(master)

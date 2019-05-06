@@ -160,6 +160,7 @@ class SendRequest(object):
         event = Event(msg)
 
         self._ui2egQueue.put(event)
+        # print("暂停事件已发送")
 
     def strategyResume(self, strategyId):
         """策略运行恢复"""
@@ -173,6 +174,7 @@ class SendRequest(object):
 
         event = Event(msg)
         self._ui2egQueue.put(event)
+        # print("恢复事件已发送")
 
     def strategyQuit(self, strategyId):
         """策略停止运行"""
@@ -186,13 +188,21 @@ class SendRequest(object):
 
         event = Event(msg)
         self._ui2egQueue.put(event)
+        # print("停止事件已发送")
 
     def strategySignal(self, strategyId):
+        """策略信号和指标图"""
         msg = {
-            "EventSrc": EEQU_EVSRC_UI,
-            "EventCode": EV_UI2EG_STRATEGY
+            "EventSrc"     :    EEQU_EVSRC_UI,
+            "EventCode"    :    EV_UI2EG_STRATEGY_FIGURE,
+            "SessionId"    :    0,
+            "StrategyId"   :    strategyId,
+            "Data"         :    {}
         }
-        pass
+
+        event = Event(msg)
+        self._ui2egQueue.put(event)
+        # print("图表事件已发送")
 
 
 # class AskRequest(object):
@@ -269,10 +279,18 @@ class GetEgData(object):
     def _onEgReportAnswer(self, event):
         """获取引擎报告应答数据并显示报告"""
         data = event.getData()
-        self._reportData = data
+        id = event.getStrategyId()
+
+
+        # 更新result中的开始时间和结束时间
+        tempResult = data["Result"]
+        tempResult["Detail"]["StartTime"] = data["BeginTradeDate"]
+        tempResult["Detail"]["EndTime"] = data["EndTradeDate"]
+
+        self._reportData = tempResult
         # 取到报告数据弹出报告
         if self._reportData:
-            self._app.reportDisplay(self._reportData)
+            self._app.reportDisplay(self._reportData, id)
 
     def _onEgDebugInfo(self, event):
         """获取引擎策略调试信息"""

@@ -31,13 +31,14 @@ strategy={
 
 
 class CalcCenter(object):
-    def __init__(self, strategy, logger):
-        self._strategy = strategy
+    def __init__(self, logger):
+        # self._strategy = strategy
         self._logger = logger
 
         self._orderId = 0
         self._currentBar = 0  # 当前bar序号
-        self._curTradeDate = self._strategy["StartTime"]  # 当前交易日
+        # self._curTradeDate = self._strategy["StartTime"]  # 当前交易日
+        self._curTradeDate = None  # 当前交易日
         self._firstHoldPosition = 0  # 所有合约第一个有仓未平的开仓单位置
         self._continueWin = 0  # 当前连续盈利次数
         self._continueLose = 0  # 当前连续亏损次数
@@ -85,12 +86,21 @@ class CalcCenter(object):
         self._reportDetails = {}  # 回测报告详情
 
         # 放在这里，在对这个类初始化时会不会有问题。。
-        self._setProfitInitialFundInfo(self._strategy["InitialFunds"] - self._expertSetting["StartFund"])
+        # self._setProfitInitialFundInfo(int(self._strategy["InitialFunds"]) - self._expertSetting["StartFund"])
         # TODO: setExpertSetting外部调用比较合适
-        self.setExpertSetting()
+        # self._setExpertSetting()
+
+    def initArgs(self, args):
+        """初始化参数"""
+        self._strategy = args
+        self._setProfitInitialFundInfo(int(self._strategy["InitialFunds"]) - self._expertSetting["StartFund"])
+        self._setExpertSetting()
+        self._curTradeDate = self._strategy["StartTime"]
 
     def _updateTradeDate(self, Time):
         """更新当前交易日信息"""
+        if self._curTradeDate is None:
+            return
         if self._curTradeDate == Time:
             return
         self._curTradeDate = Time
@@ -98,7 +108,7 @@ class CalcCenter(object):
         self._calcTradeInfo()
         self._stageStatistics()
 
-    def setExpertSetting(self):
+    def _setExpertSetting(self):
         """
         交易设置
         :return: None

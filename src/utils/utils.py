@@ -35,37 +35,41 @@ def int2date(d):
     return time
 
 
-def save(data):
+def save(data, runMode, fileName):
+    """
+    将回测报告数据保存到本地文件
+    :param data: 报告展示数据
+    :param runMode: 策略运行模式
+    :param fileName: 策略文件名(含后缀）
+    :return:
+    """
     # 保存回测运行数据
-
-    # runType = get_execute_type()
-    runType = "测试"
-    strategyName = "双均线交易系统"
+    runType = formatExecuteType(runMode)
+    strategyName, extension = os.path.splitext(fileName)
     fileDir = os.path.abspath(r"./reportdata/")
     if not os.path.exists(fileDir):
         os.makedirs(fileDir)
 
-    current_time = time.strftime('%Y-%m-%d %H.%M.%S', time.localtime(time.time()))
-    file_name = fileDir + '\\' + strategyName + '\\' + runType + current_time + '.pkl'
+    currentTime = time.strftime('%Y-%m-%d %H.%M.%S', time.localtime(time.time()))
+    fileName = fileDir + '\\' + strategyName + '\\' + runType + currentTime + '.pkl'
     strategyPath = fileDir + '\\' + strategyName
 
     if not os.path.exists(strategyPath):
         os.mkdir(strategyPath)
-        with open(file_name, 'wb') as f:
+        with open(fileName, 'wb') as f:
             pickle.dump(data, f)
 
     else:
-        with open(file_name, 'wb') as f:
+        with open(fileName, 'wb') as f:
             pickle.dump(data, f)
 
 
-def get_execute_type(strategy):
-    #TODO: 执行类型先写一个定值吧
-    if strategy.config.execute_type == EEQU_TRADE_TYPE_H:
-        return "测试"
+def formatExecuteType(flag):
+    if flag:
+        return "[实盘]"
 
-    if strategy.config.execute_type == EEQU_TRADE_TYPE_A:
-        return "实盘"
+    else:
+        return "[回测]"
 
 # def parseYMD(date):
 #     """

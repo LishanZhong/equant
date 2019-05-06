@@ -260,6 +260,7 @@ class QuantEditor(StrategyTree):
     def treeDoubleClick(self, event):
         """设置策略编辑框中的内容"""
         self.saveEditor()        # 切换策略时将原来的策略保存
+
         select = event.widget.selection()
         for idx in select:
             path = self.root_tree.item(idx)["values"][0]

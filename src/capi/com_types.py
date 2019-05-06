@@ -61,6 +61,7 @@ EV_UI2EG_STRATEGY_PAUSE           = 0x003           # 策略暂停
 EV_UI2EG_STRATEGY_RESUME          = 0x004           # 策略恢复
 EV_UI2EG_EQUANT_EXIT              = 0x005           # 量化退出
 EV_UI2EG_STRATEGY_QUIT            = 0x006           # 策略停止
+EV_UI2EG_STRATEGY_FIGURE          = 0x007           # 策略信号和指标图
 
 #////////////////////引擎->界面事件定义////////////////////////
 EV_EG2UI_LOADSTRATEGY_RESPONSE    = 0x101           # 策略加载应答
@@ -234,6 +235,10 @@ EEQU_STRATEGY_STATE_RUNNING       = 0x01
 EEQU_STRATEGY_STATE_PAUSE         = 0x02
 EEQU_STRATEGY_STATE_ERROR         = 0x03
 EEQU_STRATEGY_STATE_QUIT          = 0x04
+
+# 手续费收费方式
+EEQU_FEE_TYPE_RATIO                = 'R' # 按比例
+EEQU_FEE_TYPE_FIXED                = 'F' # 按固定值
 
 # 1档行情各FieldMean对应类型值
 EEQU_FIDTYPE_ARRAY = [

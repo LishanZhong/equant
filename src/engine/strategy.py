@@ -83,9 +83,6 @@ class Strategy:
         moduleDir, moduleName = os.path.split(self._filePath)
         self._strategyName = ''.join(moduleName.split('.')[:-1])
 
-        # self._strategyExit = False
-        # self._processExit = False
-
         # 策略所在进程状态, Ready、Running、Exit、Pause
         self._strategyState = StrategyStatusReady
         #
@@ -105,8 +102,6 @@ class Strategy:
         self._strategyState = StrategyStatusRunning
         moduleDir, moduleName = os.path.split(self._filePath)
         moduleName = os.path.splitext(moduleName)[0]
-
-        # self._sub = False
 
         if moduleDir not in sys.path:
             sys.path.insert(0, moduleDir)
@@ -194,7 +189,7 @@ class Strategy:
         self._runStatus = ST_STATUS_CONTINUES
         self._send2UIStatus(self._runStatus)
         
-        while not self._isExit() and not self._isPause():
+        while not self._isExit():
             event = self._triggerQueue.get()
             # 发单方式，实时发单、k线稳定后发单。
             self._dataModel.runRealTime(self._context, self._userModule.handle_data, event)
@@ -289,6 +284,8 @@ class Strategy:
             EEQU_SRVEVENT_TRADE_FUNDQRY     : self._onTradeFundRsp      ,
 
             EV_UI2EG_STRATEGY_PAUSE         : self._onStrategyPause,
+            EV_UI2EG_STRATEGY_RESUME        : self._onStrategyResume,
+            EV_UI2EG_EQUANT_EXIT            : self._onEquantExit,
         }
     
     # ////////////////////////////内部数据请求接口////////////////////
@@ -311,6 +308,7 @@ class Strategy:
     def _onCommodity(self, event):
         '''品种查询应答'''
         self._dataModel.onCommodity(event)
+        self._dataModel.initializeCalc()
             
     def _onQuoteRsp(self, event):
         '''行情应答，来着策略引擎'''
@@ -335,7 +333,11 @@ class Strategy:
         responseEvent = Event({
             "EventCode":EV_EG2UI_REPORT_RESPONSE,
             "StrategyId":self._strategyId,
-            "Data":data
+            "Data":{
+                "Result":data,
+                "BeginTradeDate":self._dataModel.getHisQuoteModel().getBeginDate(),
+                "EndTradeDate":self._dataModel.getHisQuoteModel().getEndDate(),
+            }
         })
         self.sendEvent2Engine(responseEvent)
 
@@ -489,6 +491,27 @@ class Strategy:
 
     def _onStrategyPause(self, event):
         self._strategyState = StrategyStatusPause
+        responseEvent = Event({
+            "EventCode": EV_EG2UI_STRATEGY_STATUS,
+            "StrategyId": self._strategyId,
+            "Data":{
+                "Status":ST_STATUS_PAUSE
+            }
+        })
+        self.sendEvent2Engine(responseEvent)
 
     def _onStrategyResume(self, event):
         self._strategyState = StrategyStatusRunning
+        status = ST_STATUS_CONTINUES if self.isRealTimeStatus() else ST_STATUS_HISTORY
+        responseEvent = Event({
+            "EventCode": EV_EG2UI_STRATEGY_STATUS,
+            "StrategyId": self._strategyId,
+            "Data": {
+                "Status": status
+            }
+        })
+        self.sendEvent2Engine(responseEvent)
+
+    def _onEquantExit(self, event):
+        # print(" exit ")
+        pass

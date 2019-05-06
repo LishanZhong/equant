@@ -123,7 +123,7 @@ class ReportDetail(object):
     @property
     def returns(self):  # 盈利率
         if self._expert_setting['StartFund']:
-            return self._profit['TotalProfit'] / self._expert_setting['StartFund']
+            return self._profit['TotalProfit'] / int(self._expert_setting['StartFund'])
         return np.nan
 
     @property
@@ -145,7 +145,7 @@ class ReportDetail(object):
                 return float('inf')
             else:
                 return '--'
-        return (self.final_equity / self._expert_setting['StartFund']) ** (365 / self._test_day) - 1
+        return (self.final_equity / int(self._expert_setting['StartFund'])) ** (365 / self._test_day) - 1
 
     @property
     def monthly_compound(self):  # 月化复利收益率
@@ -154,7 +154,7 @@ class ReportDetail(object):
                 return float('inf')
             else:
                 return '--'
-        return (self.final_equity / self._expert_setting['StartFund']) ** (30 / self._test_day) - 1
+        return (self.final_equity / int(self._expert_setting['StartFund'])) ** (30 / self._test_day) - 1
 
     @property
     def win_rate(self):  # 胜率

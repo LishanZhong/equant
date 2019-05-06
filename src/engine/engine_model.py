@@ -714,7 +714,6 @@ class TradeModel:
 
             self._userInfo[userNo] = tUserInfoModel
 
-
     def updateUserInfo(self, apiEvent):
         dataList = apiEvent.getData()
         for data in dataList:
@@ -730,7 +729,7 @@ class TradeModel:
             self._loginInfo[loginNo].updateUserInfo(userNo, userInfo)
             self._userInfo[userNo] = userInfo
         
-        #print(apiEvent.getData())
+        # print(apiEvent.getData())
 
     def updateMoney(self, apiEvent):
         dataList = apiEvent.getData()

@@ -4,6 +4,7 @@ from .engine_model import *
 from copy import deepcopy
 import talib
 import time
+import datetime
 from report.calc import CalcCenter
 import copy
 
@@ -18,11 +19,11 @@ class StrategyModel(object):
        
         self._plotedDict = {}
         
-        #Notice：会抛异常
+        # Notice：会抛异常
         self._cfgModel = StrategyConfig(self._argsDict)
-        #回测计算
-        self._calcCenter = self._createCalc()
-        
+        # 回测计算
+        self._calcCenter = CalcCenter(self.logger)
+
         self._qteModel = StrategyQuote(strategy, self._cfgModel)
         self._hisModel = StrategyHisQuote(strategy, self._cfgModel, self._calcCenter)
         self._trdModel = StrategyTrade(strategy, self._cfgModel)
@@ -42,29 +43,10 @@ class StrategyModel(object):
     def getConfigModel(self):
         return self._cfgModel
 
-    # +++++++++++++++++++++++内部接口++++++++++++++++++++++++++++
-    def _createCalc(self):
-        strategyParam = {
-            "InitialFunds": 1000000,        # self._cfgModel.getInitialFunds(),        # 初始资金
-            "StrategyName": 'TEST111',      # self._strategy.getStrategyName(),        # 策略名称
-            "StartTime"   : '2019-04-01' ,  # self._cfgModel.getStartTime(),           # 回测开始时间
-            "EndTime"     : '2019-04-17',   # self._cfgModel.getEndTime(),             # 回测结束时间
-            "Margin"      : 0.08,                                    # 保证金
-            "Slippage"    : 0,                                       # 滑点
-            "OpenRatio"   : 0.08,
-            "CloseRatio"  : 0.08,
-            "OpenFixed"   : 0,
-            "CloseFixed"  : 0,
-            "CloseTodayRatio": 0.08,
-            "CloseTodayFixed": 0,
-            "KLineType"   : 'M',            # self._cfgModel.getKLineType(),                        # K线类型
-            "KLineSlice"  : 1,                          # K线间隔（1， 2， 5）
-            "TradeDot"    : 10,                         # 每手乘数
-            "PriceTick"   : 0.01,                       # 最小变动价位
-        }
-        
-        return CalcCenter(strategyParam, self.logger)
+    def getHisQuoteModel(self):
+        return self._hisModel
 
+    # +++++++++++++++++++++++内部接口++++++++++++++++++++++++++++
     def getCalcCenter(self):
         return self._calcCenter
         
@@ -73,7 +55,29 @@ class StrategyModel(object):
         self._qteModel.initialize()
         self._hisModel.initialize()
         self._trdModel.initialize()
-        
+
+    def initializeCalc(self):
+        contNo = self._cfgModel.getContract()[0]
+        strategyParam = {
+            "InitialFunds": float(self._cfgModel.getInitCapital()),  # 初始资金
+            "StrategyName": self._strategy.getStrategyName(),  # 策略名称
+            "StartTime": "2019-04-01",  # 回测开始时间
+            "EndTime": "2019-04-17",  # 回测结束时间
+            "Margin": self._cfgModel.getMarginValue() if not self._cfgModel.getMarginValue() else 0.08,  # 保证金
+            "Slippage": self._cfgModel.getSlippage(),  # 滑点
+            "OpenRatio": self._cfgModel.getOpenRatio(),
+            "CloseRatio": self._cfgModel.getCloseRatio(),
+            "OpenFixed": self._cfgModel.getOpenFixed(),
+            "CloseFixed": self._cfgModel.getCloseFixed(),
+            "CloseTodayRatio": self._cfgModel.getCloseTodayRatio(),
+            "CloseTodayFixed": self._cfgModel.getCloseTodayFixed(),
+            "KLineType": self._cfgModel.getKLineType(),  # K线类型
+            "KLineSlice": self._cfgModel.getKLineSlice(),  # K线间隔
+            "TradeDot": self.getContractUnit(contNo),  # 每手乘数
+            "PriceTick": self.getPriceScale(contNo),  # 最小变动价位
+        }
+        self._calcCenter.initArgs(strategyParam)
+
     # ++++++++++++++++++++++策略接口++++++++++++++++++++++++++++++
     # //////////////////////历史行情接口//////////////////////////
     def runReport(self, context, handle_data):
@@ -413,6 +417,45 @@ class StrategyModel(object):
     def setBarInterval(self, barType, barInterval):
         self._cfgModel.setBarInterval(barType, barInterval)
 
+    def setSample(self, sampleType, sampleValue):
+        if sampleType not in ('A', 'D', 'C', 'N'):
+            return -1
+
+        # 使用所有K线
+        if sampleType == 'A':
+            self._cfgModel.setAllKTrue()
+            return 0
+
+        # 指定日期开始触发
+        if sampleType == 'D':
+            if not sampleValue or not isinstance(sampleValue, str):
+                return -1
+            if not self.isVaildDate(sampleValue):
+                return -1
+            self._cfgModel.setBarPeriod(sampleValue)
+            return 0
+
+        # 使用固定根数
+        if sampleType == 'C':
+            if not isinstance(sampleValue, int) or sampleValue <= 0:
+                return -1
+            self._cfgModel.setBarCount(sampleValue)
+            return 0
+
+        # 不执行历史K线
+        if sampleType == 'N':
+            self._cfgModel.setUseSample(False)
+            return 0
+
+        return -1
+
+    def isVaildDate(self, date):
+        try:
+            time.strptime(date, "%Y%m%d")
+            return True
+        except:
+            return False
+
     def setBarPeriod(self, beginDate):
         if not beginDate:
             return -1
@@ -433,17 +476,17 @@ class StrategyModel(object):
         if type == 0:
             # 按比例
             if not value or value == 0:
-                return self._cfgModel.setMargin('R', 0.08)
+                return self._cfgModel.setMargin(EEQU_FEE_TYPE_RATIO, 0.08)
 
             if value > 1:
                 return -1
-            return self._cfgModel.setMargin('R', ())
+            return self._cfgModel.setMargin(EEQU_FEE_TYPE_FIXED, ())
 
         if type == 1:
             # 按固定值
             if not value or value <= 0:
                 return -1
-            return self._cfgModel.setMargin('F', value)
+            return self._cfgModel.setMargin(EEQU_FEE_TYPE_FIXED, value)
 
     def setTradeFee(self, type, rateFee, fixFee):
         '''
@@ -462,14 +505,14 @@ class StrategyModel(object):
             return -1
 
         if rateFee == 0:
-            self._cfgModel.setTradeFee(type, 'F', fixFee)
+            self._cfgModel.setTradeFee(type, EEQU_FEE_TYPE_FIXED, fixFee)
             return 0
 
         if fixFee == 0:
-            self._cfgModel.setTradeFee(type, 'R', rateFee)
+            self._cfgModel.setTradeFee(type, EEQU_FEE_TYPE_RATIO, rateFee)
             return 0
 
-        self._cfgModel.setTradeFee(type, 'F', rateFee*fixFee)
+        self._cfgModel.setTradeFee(type, EEQU_FEE_TYPE_FIXED, rateFee*fixFee)
         return 0
 
     def setTradeMode(self, inActual, sendOrderType, useSample, useReal):
@@ -477,6 +520,31 @@ class StrategyModel(object):
             return -1
 
         self._cfgModel.setTradeMode(inActual, sendOrderType, useSample, useReal)
+        return 0
+
+    def setTradeDirection(self, tradeDirection):
+        if tradeDirection not in (0, 1, 2):
+            return -1
+
+        self._cfgModel.setTradeDirection(tradeDirection)
+        return 0
+
+    def setMinTradeQuantity(self, tradeQty):
+        if tradeQty <= 0 or tradeQty > MAXSINGLETRADESIZE:
+            return -1
+
+        self._cfgModel.setMinQty(tradeQty)
+        return 0
+
+    def setHedge(self, hedge):
+        if hedge not in ('T', 'B', 'S', 'M'):
+            return -1
+
+        self._cfgModel.setHedge(hedge)
+        return 0
+
+    def setSlippage(self, slippage):
+        self._cfgModel.setSlippage(slippage)
         return 0
 
     # ///////////////////////账户函数///////////////////////////
@@ -814,6 +882,71 @@ class StrategyModel(object):
     def getSymbolType(self, contNo):
         return self.getCommodityInfoFromContNo(contNo)['CommodityCode']
 
+    # ///////////////////////策略性能///////////////////////////
+    def getAvailable(self):
+        return self._calcCenter.getProfit()['Available']
+
+    def getFloatProfit(self, contNo):
+        return self._calcCenter._getHoldProfit(contNo)
+
+    def getGrossLoss(self):
+        return self._calcCenter.getProfit()["TotalLose"]
+
+    def getGrossProfit(self):
+        return self._calcCenter.getProfit()["TotalProfit"]
+
+    def getMargin(self, contNo):
+        return self._calcCenter._getHoldMargin(contNo)
+
+    def getNetProfit(self):
+        '''平仓盈亏'''
+        return self._calcCenter._getProfit()["LiquidateProfit"]
+
+    def getNumEvenTrades(self):
+        '''保本交易总手数'''
+        # return self._calcCenter._getProfit()["EventTrade"]
+        return 0
+
+    def getNumLosTrades(self):
+        '''亏损交易总手数'''
+        # return self._calcCenter._getProfit()["LoseTrade"]
+        return 0
+
+    def getNumWinTrades(self):
+        '''盈利交易的总手数'''
+        # return self._calcCenter._getProfit()["WinTrade"]
+        return 0
+
+    def getNumAllTimes(self):
+        '''开仓次数'''
+        return self._calcCenter._getProfit()["AllTimes"]
+
+    def getNumWinTimes(self):
+        '''盈利次数'''
+        return self._calcCenter._getProfit()["WinTimes"]
+
+    def getNumLoseTimes(self):
+        '''亏损次数'''
+        return self._calcCenter._getProfit()["LoseTimes"]
+
+    def getNumEventTimes(self):
+        '''保本次数'''
+        return self._calcCenter._getProfit()["EventTimes"]
+
+    def getPercentProfit(self):
+        '''盈利成功率'''
+        winTimes = self._calcCenter._getProfit()["WinTimes"]
+        allTimes = self._calcCenter._getProfit()["AllTimes"]
+        return winTimes/allTimes if allTimes > 0 else 0
+
+    def getTradeCost(self):
+        '''交易产生的手续费'''
+        return self._calcCenter._getProfit()["Cost"]
+
+    def getTotalTrades(self):
+        '''交易总开仓手数'''
+        # return self._calcCenter._getProfit()["AllTrade"]
+        return 0
 
 class StrategyConfig(object):
     '''
@@ -874,11 +1007,10 @@ class StrategyConfig(object):
       }
     '''
     def __init__(self, argsDict):
-        
         ret = self._chkConfig(argsDict)
         if ret > 0:
             raise Exception(ret)
-        
+
         self._metaData = deepcopy(argsDict)
         
     def _chkConfig(self, argsDict):
@@ -962,6 +1094,20 @@ class StrategyConfig(object):
         '''获取样本数据'''
         return self._metaData['Sample']
 
+    def getStartTime(self):
+        '''获取回测起始时间'''
+        if "BeginTime" in self._metaData['Sample']:
+            return self._metaData['Sample']['BeginTime']
+        return 0
+
+    def getKLineType(self):
+        '''获取K线类型'''
+        return self._metaData['Sample']['KLineType']
+
+    def getKLineSlice(self):
+        '''获取K线间隔'''
+        return self._metaData['Sample']['KLineSlice']
+
     def setAllKTrue(self):
         '''使用所有K线回测'''
         sample = self._metaData['Sample']
@@ -998,6 +1144,9 @@ class StrategyConfig(object):
         sample['KLineCount'] = count
         self._metaData['RunMode']['Simulate']['UseSample'] = True
 
+    def setUseSample(self, isUseSample):
+        self._metaData['RunMode']['Simulate']['UseSample'] = isUseSample
+
     def setBarInterval(self, barType, barInterval):
         '''设置K线类型和K线周期'''
         if barType:
@@ -1027,12 +1176,44 @@ class StrategyConfig(object):
 
     def setMargin(self, type, value):
         '''设置保证金的类型及比例/额度'''
-        if value < 0 or type not in ('R', 'F'):
+        if value < 0 or type not in (EEQU_FEE_TYPE_RATIO, EEQU_FEE_TYPE_FIXED):
             return -1
 
         self._metaData['Money']['Margin']['Value'] = value
         self._metaData['Money']['Margin']['Type'] = type
         return 0
+
+    def getRatioOrFixedFee(self, feeType, isRatio):
+        '''获取 开仓/平仓/今平 手续费率或固定手续费'''
+        if feeType not in ('OpenFee', 'CloseFee', 'CloseTodayFee'):
+            return 0
+        openFeeType = EEQU_FEE_TYPE_RATIO if isRatio else EEQU_FEE_TYPE_FIXED
+        return self._metaData['Money'][feeType]['Value'] if self._metaData['Money'][feeType]['Type'] == openFeeType else 0
+
+    def getOpenRatio(self):
+        '''获取开仓手续费率'''
+        return self.getRatioOrFixedFee('OpenFee', True)
+
+    def getOpenFixed(self):
+        '''获取开仓固定手续费'''
+        return self.getRatioOrFixedFee('OpenFee', False)
+
+    def getCloseRatio(self):
+        '''获取平仓手续费率'''
+        return self.getRatioOrFixedFee('CloseFee', True)
+
+    def getCloseFixed(self):
+        '''获取平仓固定手续费'''
+        return self.getRatioOrFixedFee('CloseFee', False)
+
+    def getCloseTodayRatio(self):
+        '''获取今平手续费率'''
+        return self.getRatioOrFixedFee('CloseTodayFee', True)
+
+    def getCloseTodayFixed(self):
+        '''获取今平固定手续费'''
+        return self.getRatioOrFixedFee('CloseTodayFee', False)
+
 
     def setTradeFee(self, type, feeType, feeValue):
         typeMap = {
@@ -1062,6 +1243,26 @@ class StrategyConfig(object):
             # 模拟盘运行
             runMode['Simulate']['UseSample'] = useSample
             runMode['Simulate']['Continues'] = useReal
+
+    def setTradeDirection(self, tradeDirection):
+        '''设置交易方向'''
+        self._metaData["Other"]["TradeDirection"] = tradeDirection
+
+    def setMinQty(self, minQty):
+        '''设置最小下单量'''
+        self._metaData["Money"]["MinQty"] = minQty
+
+    def setHedge(self, hedge):
+        '''设置投保标志'''
+        self._metaData["Money"]["Hedge"] = hedge
+
+    def setSlippage(self, slippage):
+        '''设置滑点损耗'''
+        self._metaData['Other']['Slippage'] = slippage
+
+    def getSlippage(self):
+        '''滑点损耗'''
+        return self._metaData['Other']['Slippage']
 
     def getSendOrder(self):
         return self._metaData['RunMode']['SendOrder']
@@ -1203,6 +1404,14 @@ class StrategyHisQuote(object):
         self._curBarDict[contractNo] = BarInfo(self.logger)
 
     # //////////////`////////////////////////////////////////////////////
+    def getBeginDate(self):
+        data = self._metaData[self._contractNo]['KLineData']
+        return str(data[0]['TradeDate'])
+
+    def getEndDate(self):
+        data = self._metaData[self._contractNo]['KLineData']
+        return str(data[-1]['TradeDate'])
+
     def getBorderIndex(self):
         return self._borderIndex
 
